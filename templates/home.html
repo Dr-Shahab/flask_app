@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MolScore-PK | Descriptor-Based Molecular Profiling Platform</title>
+    <meta name="description" content="MolScore-PK is a web-based platform for descriptor-driven molecular profiling, medicinal chemistry assessment, and early-stage compound prioritization.">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="brand-block">
+                <div class="brand-badge">MolScore-PK</div>
+                <h1>MolScore-PK</h1>
+                <p>Descriptor-based molecular profiling and early-stage compound prioritization platform</p>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('home') }}" class="active">🏠 Home</a>
+                <a href="{{ url_for('prediction') }}">🧪 Prediction</a>
+                <a href="{{ url_for('documentation') }}">📘 Documentation</a>
+            </nav>
+
+            <div class="sidebar-foot">
+                <div class="mini-status-card">
+                    <span class="mini-label">Input Modes</span>
+                    <strong>SMILES, Draw, CSV</strong>
+                </div>
+                <div class="mini-status-card">
+                    <span class="mini-label">Engine</span>
+                    <strong>Flask + RDKit</strong>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-panel">
+            <section class="hero-panel home-banner">
+                <div class="home-hero-grid">
+                    <div class="home-hero-text">
+                        <span class="eyebrow">Early-stage molecular profiling web server</span>
+                        <h2>Professional descriptor-based screening for small molecules</h2>
+                        <p class="hero-lead">
+                            MolScore-PK provides a unified environment for molecular descriptor calculation,
+                            drug-likeness analysis, medicinal chemistry alerting, property-oriented assessment,
+                            and dataset-level prioritization to support practical early-stage drug discovery workflows.
+                        </p>
+
+                        <div class="hero-actions">
+                            <a href="{{ url_for('prediction') }}" class="primary-button">Start Profiling</a>
+                            <a href="{{ url_for('documentation') }}" class="secondary-button">View Documentation</a>
+                        </div>
+
+                        <div class="tag-row">
+                            <span class="tag-chip">Descriptor Profiling</span>
+                            <span class="tag-chip">Drug-Likeness Rules</span>
+                            <span class="tag-chip">PK-Oriented Assessment</span>
+                            <span class="tag-chip">Medicinal Chemistry Alerts</span>
+                        </div>
+                    </div>
+
+                    <div class="home-hero-image-wrap">
+                        <img src="{{ url_for('static', filename='banner.png') }}" alt="MolScore-PK scientific banner" class="home-hero-image">
+                    </div>
+                </div>
+            </section>
+
+            <section class="stats-strip">
+                <div class="stat-card">
+                    <span class="stat-value">4</span>
+                    <span class="stat-label">Input Modes</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">10+</span>
+                    <span class="stat-label">Descriptors</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">5</span>
+                    <span class="stat-label">Drug-Likeness Rules</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">50</span>
+                    <span class="stat-label">Max Molecules / Run</span>
+                </div>
+            </section>
+
+            <section class="panel-card section-spacer">
+                <div class="section-heading">
+                    <span class="section-kicker">Overview</span>
+                    <h3>Designed for practical early-stage molecular prioritization</h3>
+                    <p>
+                        MolScore-PK enables rapid molecular evaluation through descriptor-based profiling,
+                        rule-based medicinal chemistry interpretation, and PK-oriented heuristic assessment
+                        in a clean scientific interface suitable for comparative screening and structured reporting.
+                    </p>
+                </div>
+
+                <div class="feature-grid modern-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🧪</div>
+                        <h4>Flexible Molecular Input</h4>
+                        <p>Submit a single SMILES, batch SMILES, upload a CSV file, or draw molecules interactively.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h4>Descriptor Profiling</h4>
+                        <p>Calculate molecular weight, LogP, TPSA, HBD, HBA, rotatable bonds, ring content, and related features.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">🧬</div>
+                        <h4>Drug-Likeness Filtering</h4>
+                        <p>Apply Lipinski, Veber, Ghose, Rule of 3, and lead-like evaluation for medicinal chemistry screening.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">🚨</div>
+                        <h4>Property and Alert Assessment</h4>
+                        <p>Review BBB tendency, absorption, permeability, flexibility, polarity, PAINS, Brenk, and synthetic accessibility.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel-card section-spacer emphasis-panel">
+                <div class="section-heading">
+                    <span class="section-kicker">Scientific Scope</span>
+                    <h3>What the platform currently delivers</h3>
+                    <p>
+                        The current server focuses on descriptor-based and rule-based molecular profiling.
+                        It is intended for early-stage compound triage, medicinal chemistry comparison,
+                        and structured interpretation rather than experimental pharmacokinetic prediction
+                        or target-specific bioactivity estimation.
+                    </p>
+                </div>
+
+                <div class="two-col-info">
+                    <div class="info-card">
+                        <h4>Recommended Use</h4>
+                        <ul>
+                            <li>Early-stage compound screening</li>
+                            <li>Medicinal chemistry comparison</li>
+                            <li>Pre-filtering before QSAR or docking</li>
+                            <li>Small-batch prioritization</li>
+                            <li>Descriptor-aware report generation</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-card">
+                        <h4>Current Output Style</h4>
+                        <ul>
+                            <li>Descriptor summary table</li>
+                            <li>Molecule-level scientific report cards</li>
+                            <li>2D structure rendering</li>
+                            <li>Radar-style visualization</li>
+                            <li>CSV export for downstream use</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section class="split-info-panel section-spacer">
+                <div class="panel-card">
+                    <div class="section-heading">
+                        <span class="section-kicker">Developer</span>
+                        <h3>Scientific Background</h3>
+                        <p>
+                            Dr. Muhammad Shahab works in computational drug discovery, computer-aided drug design,
+                            cheminformatics, molecular descriptor analysis, machine learning for molecular prioritization,
+                            molecular docking, and molecular dynamics simulations.
+                        </p>
+                    </div>
+
+                    <div class="contact-container">
+                        <div class="contact-block">
+                            <h4>Direct Contact</h4>
+                            <p class="contact-line">
+                                <strong>Email:</strong>
+                                <a href="mailto:Shahabkhan1852@gmail.com" class="contact-link">Shahabkhan1852@gmail.com</a>
+                            </p>
+                            <p class="contact-line">
+                                <strong>GitHub:</strong>
+                                <a href="https://github.com/Dr-Shahab" target="_blank" rel="noopener noreferrer" class="contact-link">github.com/Dr-Shahab</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <div class="section-heading">
+                        <span class="section-kicker">Affiliation</span>
+                        <h3>Laboratory and Institution</h3>
+                    </div>
+
+                    <div class="contact-container">
+                        <div class="contact-block">
+                            <h4>Research Environment</h4>
+                            <p class="contact-line lab-text">
+                                Guangdong Medical University Key Laboratory of Big Data Mining and Precision Drug Design,
+                                Guangdong Provincial Key Laboratory for Research and Development of Natural Drugs,
+                                School of Pharmacy, Guangdong Medical University, Dongguan 523808, China
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel-card section-spacer future">
+                <div class="section-heading">
+                    <span class="section-kicker">Roadmap</span>
+                    <h3>Planned platform extensions</h3>
+                    <p>
+                        Future development can include QSAR model integration, machine learning-assisted scoring,
+                        target-aware prioritization, docking workflow coupling, and richer compound interpretation modules.
+                    </p>
+                </div>
+            </section>
+
+            <section class="footer-block">
+                <p>
+                    Guangdong Provincial Key Laboratory for Research and Development of Natural Drugs,
+                    School of Pharmacy, Guangdong Medical University, Dongguan 523808, China
+                </p>
+                <p>© 2026 MolScore-PK. All rights reserved.</p>
+                <p>Last update: March 25, 2026</p>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

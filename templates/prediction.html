@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Run Prediction | MolScore-PK</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='JSME/jsme/jsme.nocache.js') }}"></script>
+</head>
+
+<body>
+<div class="app-shell">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="brand-block">
+            <div class="brand-badge">MolScore-PK</div>
+            <h1>MolScore-PK</h1>
+            <p>Molecular profiling and prioritization platform</p>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('home') }}">🏠 Home</a>
+            <a href="{{ url_for('prediction') }}" class="active">🧪 Prediction</a>
+            <a href="{{ url_for('documentation') }}">📘 Documentation</a>
+        </nav>
+
+        <div class="sidebar-foot">
+            <div class="mini-status-card">
+                <span class="mini-label">Max Batch</span>
+                <strong>50 Molecules</strong>
+            </div>
+            <div class="mini-status-card">
+                <span class="mini-label">Supported Inputs</span>
+                <strong>SMILES / Draw / CSV</strong>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main-panel">
+
+        <!-- Banner -->
+        <section class="page-banner compact-banner">
+            <div class="page-banner-text">
+                <span class="eyebrow eyebrow-light">Molecular input workspace</span>
+                <h2>Run Molecular Profiling</h2>
+                <p>
+                    Submit molecular structures using SMILES, batch input, drawing interface,
+                    or CSV upload. Descriptor-based profiling and prioritization will be generated
+                    in a structured scientific report.
+                </p>
+            </div>
+        </section>
+
+        <!-- Stats -->
+        <section class="stats-strip">
+            <div class="stat-card">
+                <span class="stat-value">4</span>
+                <span class="stat-label">Input Modes</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value">50</span>
+                <span class="stat-label">Max Molecules</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value">RDKit</span>
+                <span class="stat-label">Engine</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value">Instant</span>
+                <span class="stat-label">Processing</span>
+            </div>
+        </section>
+
+        <!-- Form Panel -->
+        <section class="panel-card">
+
+            <div class="panel-header">
+                <span class="section-kicker">Input Configuration</span>
+                <h3>Provide molecular structures</h3>
+                <p>Select the input mode and submit molecules for profiling.</p>
+            </div>
+
+            {% if error %}
+            <div class="alert-box">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="POST"
+                  action="{{ url_for('predict') }}"
+                  enctype="multipart/form-data"
+                  id="predictionForm"
+                  class="prediction-form">
+
+                <!-- Input Method -->
+                <div class="form-row">
+                    <label for="input_method">Input Method</label>
+                    <select id="input_method" name="input_method" class="form-control">
+                        <option value="single" {% if selected_method == "single" %}selected{% endif %}>Single SMILES</option>
+                        <option value="batch" {% if selected_method == "batch" %}selected{% endif %}>Batch SMILES</option>
+                        <option value="draw" {% if selected_method == "draw" or not selected_method %}selected{% endif %}>Draw Molecule</option>
+                        <option value="upload" {% if selected_method == "upload" %}selected{% endif %}>Upload CSV</option>
+                    </select>
+                </div>
+
+                <!-- Single -->
+                <div id="single_block" class="input-section hidden">
+                    <label>Single SMILES</label>
+                    <input type="text"
+                           name="single_smiles"
+                           class="form-control"
+                           placeholder="Example: CC(=O)OC1=CC=CC=C1C(=O)O">
+                    <p class="field-note">Submit one molecule for instant profiling.</p>
+                </div>
+
+                <!-- Batch -->
+                <div id="batch_block" class="input-section hidden">
+                    <label>Batch SMILES</label>
+                    <textarea name="batch_smiles"
+                              class="form-control large-textarea"
+                              placeholder="One SMILES per line"></textarea>
+                    <p class="field-note">Maximum 50 molecules per run.</p>
+                </div>
+
+                <!-- Draw -->
+                <div id="draw_block" class="input-section hidden">
+                    <label>Draw Molecule</label>
+
+                    <div class="draw-grid">
+
+                        <div class="draw-card">
+                            <div id="jsme_container" class="jsme-container"></div>
+                        </div>
+
+                        <div class="side-info-column">
+
+                            <div class="info-card">
+                                <h4>Generated SMILES</h4>
+                                <textarea id="drawn_smiles_preview"
+                                          class="form-control smiles-preview"
+                                          readonly
+                                          placeholder="SMILES will appear here"></textarea>
+                            </div>
+
+                            <div class="info-card">
+                                <h4>Instructions</h4>
+                                <ul>
+                                    <li>Draw the molecule in the editor</li>
+                                    <li>SMILES updates automatically</li>
+                                    <li>Only one molecule is processed</li>
+                                </ul>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="drawn_smiles" name="drawn_smiles">
+                </div>
+
+                <!-- Upload -->
+                <div id="upload_block" class="input-section hidden">
+                    <label>Upload CSV</label>
+                    <input type="file"
+                           name="file_upload"
+                           class="form-control file-control"
+                           accept=".csv">
+                    <p class="field-note">CSV must contain a column named <strong>smiles</strong>.</p>
+                </div>
+
+                <!-- Submit -->
+                <div class="action-row">
+                    <button type="submit" class="primary-button large-button">
+                        Run MolScore-PK Analysis
+                    </button>
+                </div>
+
+            </form>
+        </section>
+
+    </main>
+</div>
+
+<script>
+let jsmeApplet = null;
+let jsmeReady = false;
+
+function createJSME() {
+    const container = document.getElementById("jsme_container");
+    if (!container || jsmeApplet || !window.JSApplet) return;
+
+    jsmeApplet = new JSApplet.JSME("jsme_container", "720px", "460px", {
+        "options": "oldlook,star"
+    });
+
+    if (jsmeApplet.setAfterStructureModifiedCallback) {
+        jsmeApplet.setAfterStructureModifiedCallback(updateDrawnSmiles);
+    }
+}
+
+function jsmeOnLoad() {
+    jsmeReady = true;
+    if (document.getElementById("input_method").value === "draw") {
+        setTimeout(createJSME, 150);
+    }
+}
+
+function updateDrawnSmiles() {
+    if (!jsmeApplet) return;
+    const smiles = jsmeApplet.smiles() || "";
+    document.getElementById("drawn_smiles").value = smiles;
+    document.getElementById("drawn_smiles_preview").value = smiles;
+}
+
+function toggleInputSections() {
+    const method = document.getElementById("input_method").value;
+
+    ["single","batch","draw","upload"].forEach(id => {
+        document.getElementById(id + "_block").classList.add("hidden");
+    });
+
+    document.getElementById(method + "_block").classList.remove("hidden");
+
+    if (method === "draw" && jsmeReady) {
+        setTimeout(createJSME, 120);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    toggleInputSections();
+    document.getElementById("input_method").addEventListener("change", toggleInputSections);
+
+    document.getElementById("predictionForm").addEventListener("submit", updateDrawnSmiles);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Results | MolScore-PK</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="brand-block">
+                <div class="brand-badge">MolScore-PK</div>
+                <h1>MolScore-PK</h1>
+                <p>Descriptor-based molecular profiling and early-stage prioritization platform</p>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('home') }}">🏠 Home</a>
+                <a href="{{ url_for('prediction') }}">🧪 Prediction</a>
+                <a href="{{ url_for('documentation') }}">📘 Documentation</a>
+            </nav>
+
+            <div class="sidebar-foot">
+                <div class="mini-status-card">
+                    <span class="mini-label">Processed Molecules</span>
+                    <strong>{{ results|length }}</strong>
+                </div>
+                <div class="mini-status-card">
+                    <span class="mini-label">Runtime</span>
+                    <strong>{% if runtime is defined %}{{ runtime }} s{% else %}Available after run{% endif %}</strong>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-panel">
+            <section class="page-banner compact-banner">
+                <div class="page-banner-text">
+                    <span class="eyebrow eyebrow-light">Calculated molecular profiling output</span>
+                    <h2>Prediction Results</h2>
+                    <p>
+                        Descriptor-based profiling, medicinal chemistry rules, property-oriented assessments,
+                        and alert-aware prioritization for submitted molecules.
+                    </p>
+                </div>
+            </section>
+
+            <section class="stats-strip">
+                <div class="stat-card">
+                    <span class="stat-value">{{ results|length }}</span>
+                    <span class="stat-label">Molecules Processed</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">
+                        {{ results | selectattr('status', 'equalto', 'Valid') | list | length }}
+                    </span>
+                    <span class="stat-label">Valid Structures</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">
+                        {{ results | rejectattr('status', 'equalto', 'Valid') | list | length }}
+                    </span>
+                    <span class="stat-label">Invalid Inputs</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">
+                        {% if runtime is defined %}{{ runtime }} s{% else %}N/A{% endif %}
+                    </span>
+                    <span class="stat-label">Processing Time</span>
+                </div>
+            </section>
+
+            <section class="panel-card">
+                <div class="results-topbar">
+                    <div class="panel-header">
+                        <span class="section-kicker">Summary</span>
+                        <h3>Results Overview Table</h3>
+                        <p>
+                            A condensed view of molecule validity, core descriptors, alert counts,
+                            and prioritization score for rapid comparison across the submitted set.
+                        </p>
+                    </div>
+
+                    <div class="results-actions">
+                        <a href="{{ url_for('download_csv') }}" class="primary-button action-link">Download CSV</a>
+                        <a href="{{ url_for('prediction') }}" class="secondary-results-link">Analyze More Molecules</a>
+                    </div>
+                </div>
+
+                <div class="results-table-wrapper">
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Input SMILES</th>
+                                <th>Canonical SMILES</th>
+                                <th>Status</th>
+                                <th>MW</th>
+                                <th>LogP</th>
+                                <th>TPSA</th>
+                                <th>HBD</th>
+                                <th>HBA</th>
+                                <th>RotB</th>
+                                <th>BBB</th>
+                                <th>Absorption</th>
+                                <th>Permeability</th>
+                                <th>PAINS</th>
+                                <th>Brenk</th>
+                                <th>SA Score</th>
+                                <th>Rank Score</th>
+                                <th>Rank Class</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in results %}
+                            <tr>
+                                <td>{{ row.id }}</td>
+                                <td class="smiles-cell">{{ row.smiles }}</td>
+                                <td class="smiles-cell">{{ row.canonical_smiles if row.canonical_smiles is defined else '' }}</td>
+                                <td>
+                                    <span class="mini-badge {% if row.status == 'Valid' %}mini-badge-good{% else %}mini-badge-bad{% endif %}">
+                                        {{ row.status }}
+                                    </span>
+                                </td>
+                                <td>{{ row.mw if row.mw is defined else '' }}</td>
+                                <td>{{ row.logp if row.logp is defined else '' }}</td>
+                                <td>{{ row.tpsa if row.tpsa is defined else '' }}</td>
+                                <td>{{ row.hbd if row.hbd is defined else '' }}</td>
+                                <td>{{ row.hba if row.hba is defined else '' }}</td>
+                                <td>{{ row.rot_bonds if row.rot_bonds is defined else '' }}</td>
+
+                                <td>
+                                    {% if row.bbb_assessment is defined %}
+                                    <span class="mini-badge {% if row.bbb_assessment == 'Favorable' %}mini-badge-good{% else %}mini-badge-bad{% endif %}">
+                                        {{ row.bbb_assessment }}
+                                    </span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if row.absorption_assessment is defined %}
+                                    <span class="mini-badge {% if row.absorption_assessment == 'Favorable' %}mini-badge-good{% else %}mini-badge-warn{% endif %}">
+                                        {{ row.absorption_assessment }}
+                                    </span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if row.permeability_assessment is defined %}
+                                    <span class="mini-badge {% if row.permeability_assessment == 'Favorable' %}mini-badge-good{% else %}mini-badge-warn{% endif %}">
+                                        {{ row.permeability_assessment }}
+                                    </span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if row.pains_alerts_count is defined %}
+                                    <span class="mini-badge {% if row.pains_alerts_count == 0 %}mini-badge-good{% else %}mini-badge-bad{% endif %}">
+                                        {{ row.pains_alerts_count }}
+                                    </span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if row.brenk_alerts_count is defined %}
+                                    <span class="mini-badge {% if row.brenk_alerts_count == 0 %}mini-badge-good{% else %}mini-badge-warn{% endif %}">
+                                        {{ row.brenk_alerts_count }}
+                                    </span>
+                                    {% endif %}
+                                </td>
+
+                                <td>{{ row.synthetic_accessibility if row.synthetic_accessibility is defined else '' }}</td>
+                                <td>{{ row.ranking_score if row.ranking_score is defined else '' }}</td>
+
+                                <td>
+                                    {% if row.rank_class is defined %}
+                                        {% if row.rank_class == 'Excellent' %}
+                                            <span class="mini-badge mini-badge-good">{{ row.rank_class }}</span>
+                                        {% elif row.rank_class == 'Good' %}
+                                            <span class="mini-badge mini-badge-good">{{ row.rank_class }}</span>
+                                        {% elif row.rank_class == 'Moderate' %}
+                                            <span class="mini-badge mini-badge-warn">{{ row.rank_class }}</span>
+                                        {% else %}
+                                            <span class="mini-badge mini-badge-bad">{{ row.rank_class }}</span>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            {% for row in results %}
+            <section class="panel-card molecule-report-card">
+                <div class="molecule-report-header">
+                    <div class="report-title-wrap">
+                        <h3>Molecule {{ row.id }}</h3>
+                        <p class="report-title-subtext">Detailed descriptor-based profiling report</p>
+                    </div>
+
+                    <span class="molecule-status {% if row.status == 'Valid' %}status-valid{% else %}status-invalid{% endif %}">
+                        {{ row.status }}
+                    </span>
+                </div>
+
+                <div class="molecule-report-top">
+                    <div class="molecule-structure-card">
+                        <div class="report-subtitle">2D Structure</div>
+                        {% if row.image %}
+                            <img src="{{ row.image }}" alt="Molecule {{ row.id }} structure" class="molecule-image">
+                        {% else %}
+                            <div class="invalid-structure-box">Invalid structure could not be rendered.</div>
+                        {% endif %}
+
+                        <div class="smiles-report-line">
+                            <strong>Input SMILES:</strong> {{ row.smiles }}
+                        </div>
+
+                        {% if row.canonical_smiles is defined %}
+                        <div class="smiles-report-line">
+                            <strong>Canonical SMILES:</strong> {{ row.canonical_smiles }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="molecule-radar-card">
+                        <div class="report-subtitle">Bioavailability Radar-Style View</div>
+                        {% if row.radar_axes %}
+                        <svg class="radar-svg" viewBox="0 0 340 300" xmlns="http://www.w3.org/2000/svg" aria-label="Radar plot">
+                            <g transform="translate(170,150)">
+                                {% for level in [1,2,3,4,5,6] %}
+                                {% set r = level * 18 %}
+                                <polygon
+                                    points="
+                                    0,{{ -r }}
+                                    {{ 0.866*r }},{{ -0.5*r }}
+                                    {{ 0.866*r }},{{ 0.5*r }}
+                                    0,{{ r }}
+                                    {{ -0.866*r }},{{ 0.5*r }}
+                                    {{ -0.866*r }},{{ -0.5*r }}
+                                    "
+                                    class="radar-grid"/>
+                                {% endfor %}
+
+                                <line x1="0" y1="0" x2="0" y2="-108" class="radar-axis"/>
+                                <line x1="0" y1="0" x2="93.53" y2="-54" class="radar-axis"/>
+                                <line x1="0" y1="0" x2="93.53" y2="54" class="radar-axis"/>
+                                <line x1="0" y1="0" x2="0" y2="108" class="radar-axis"/>
+                                <line x1="0" y1="0" x2="-93.53" y2="54" class="radar-axis"/>
+                                <line x1="0" y1="0" x2="-93.53" y2="-54" class="radar-axis"/>
+
+                                {% set v0 = row.radar_axes[0].value * 18 %}
+                                {% set v1 = row.radar_axes[1].value * 18 %}
+                                {% set v2 = row.radar_axes[2].value * 18 %}
+                                {% set v3 = row.radar_axes[3].value * 18 %}
+                                {% set v4 = row.radar_axes[4].value * 18 %}
+                                {% set v5 = row.radar_axes[5].value * 18 %}
+
+                                <polygon
+                                    points="
+                                    0,{{ -v0 }}
+                                    {{ 0.866*v1 }},{{ -0.5*v1 }}
+                                    {{ 0.866*v2 }},{{ 0.5*v2 }}
+                                    0,{{ v3 }}
+                                    {{ -0.866*v4 }},{{ 0.5*v4 }}
+                                    {{ -0.866*v5 }},{{ -0.5*v5 }}
+                                    "
+                                    class="radar-shape"/>
+
+                                <text x="0" y="-122" text-anchor="middle" class="radar-label">LIPO</text>
+                                <text x="108" y="-58" text-anchor="start" class="radar-label">SIZE</text>
+                                <text x="108" y="62" text-anchor="start" class="radar-label">POLAR</text>
+                                <text x="0" y="126" text-anchor="middle" class="radar-label">INSOLU</text>
+                                <text x="-112" y="62" text-anchor="end" class="radar-label">INSATU</text>
+                                <text x="-112" y="-58" text-anchor="end" class="radar-label">FLEX</text>
+                            </g>
+                        </svg>
+                        {% else %}
+                        <div class="invalid-structure-box">Radar unavailable for invalid structure.</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if row.status == 'Valid' %}
+                <div class="stats-strip" style="margin-top: 4px; margin-bottom: 18px;">
+                    <div class="stat-card">
+                        <span class="stat-value">{{ row.ranking_score if row.ranking_score is defined else 'N/A' }}</span>
+                        <span class="stat-label">Ranking Score</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value">{{ row.rank_class if row.rank_class is defined else 'N/A' }}</span>
+                        <span class="stat-label">Ranking Class</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value">{{ row.pains_alerts_count if row.pains_alerts_count is defined else 'N/A' }}</span>
+                        <span class="stat-label">PAINS Alerts</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value">{{ row.brenk_alerts_count if row.brenk_alerts_count is defined else 'N/A' }}</span>
+                        <span class="stat-label">Brenk Alerts</span>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if row.sections %}
+                <div class="report-sections-grid">
+                    {% for section_name, items in row.sections.items() %}
+                    <div class="report-section-card">
+                        <div class="report-section-title">{{ section_name }}</div>
+                        <div class="report-kv-list">
+                            {% for key, value in items %}
+                            <div class="report-kv-row">
+                                <div class="report-kv-key">{{ key }}</div>
+                                <div class="report-kv-value">{{ value }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </section>
+            {% endfor %}
+
+            <section class="panel-card section-spacer">
+                <div class="panel-header">
+                    <span class="section-kicker">Interpretation</span>
+                    <h3>How these results should be used</h3>
+                    <p>
+                        MolScore-PK reports calculated molecular descriptors, medicinal chemistry rules,
+                        alert-based filtering, and descriptor-driven prioritization to support comparative
+                        profiling and early-stage compound triage. These outputs are not experimental PK values,
+                        not target-specific activity predictions, and should be interpreted as screening support
+                        rather than definitive decision endpoints.
+                    </p>
+                </div>
+            </section>
+
+            <section class="footer-block">
+                <p>
+                    Guangdong Provincial Key Laboratory for Research and Development of Natural Drugs,
+                    School of Pharmacy, Guangdong Medical University, Dongguan 523808, China
+                </p>
+                <p>© 2026 MolScore-PK. All rights reserved.</p>
+                <p>Last update: March 25, 2026</p>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

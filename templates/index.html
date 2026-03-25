@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>MolScore-PK | Descriptor-Based Molecular Profiling Platform</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="MolScore-PK is a descriptor-based molecular profiling and early-stage prioritization platform for small molecules.">
+    <meta name="keywords" content="MolScore-PK, molecular profiling, descriptor-based ranking, PK assessment, medicinal chemistry, RDKit, drug discovery, small molecules">
+    <meta name="author" content="Muhammad Shahab">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='JSME/jsme/jsme.nocache.js') }}"></script>
+</head>
+<body>
+<div class="app-shell">
+
+    <aside class="sidebar">
+        <div class="brand-block">
+            <div class="brand-badge">MolScore-PK</div>
+            <h1>MolScore-PK</h1>
+            <p>Descriptor-based molecular profiling for early-stage compound prioritization</p>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('home') }}" class="active">🏠 Home</a>
+            <a href="{{ url_for('prediction') }}">🧪 Prediction</a>
+            <a href="{{ url_for('documentation') }}">📘 Documentation</a>
+        </nav>
+
+        <div class="sidebar-foot">
+            <div class="mini-status-card">
+                <span class="mini-label">Engine</span>
+                <strong>Flask + RDKit</strong>
+            </div>
+            <div class="mini-status-card">
+                <span class="mini-label">Molecule Input</span>
+                <strong>SMILES, Draw, CSV</strong>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-panel">
+
+        <section class="hero-panel">
+            <div class="hero-content">
+                <div class="hero-copy">
+                    <span class="eyebrow">Molecular profiling web server</span>
+                    <h2>Professional descriptor-based screening for small molecules</h2>
+                    <p class="hero-lead">
+                        MolScore-PK provides a unified environment for molecular descriptor calculation,
+                        medicinal chemistry rule evaluation, PK-oriented assessment, alert detection,
+                        and dataset-level prioritization for early-stage drug discovery workflows.
+                    </p>
+
+                    <div class="hero-actions">
+                        <a class="primary-button" href="#quick-profile">Start Profiling</a>
+                        <a class="secondary-button" href="{{ url_for('documentation') }}">View Documentation</a>
+                    </div>
+
+                    <div class="hero-tags">
+                        <span class="tag-chip">Descriptor Profiling</span>
+                        <span class="tag-chip">Drug-Likeness Rules</span>
+                        <span class="tag-chip">PK-Oriented Assessment</span>
+                        <span class="tag-chip">Medicinal Chemistry Alerts</span>
+                    </div>
+                </div>
+
+                <div class="hero-visual">
+                    <div class="hero-image-card">
+                        <img
+                            src="{{ url_for('static', filename='banner1.png') }}"
+                            alt="MolScore-PK scientific banner"
+                            class="home-hero-image"
+                        >
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="stats-strip">
+            <div class="stat-card">
+                <span class="stat-value">4</span>
+                <span class="stat-label">Input Modes</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value">10+</span>
+                <span class="stat-label">Descriptors & Features</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value">5</span>
+                <span class="stat-label">Drug-Likeness Rules</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value">50</span>
+                <span class="stat-label">Max Molecules / Batch</span>
+            </div>
+        </section>
+
+        <section class="panel-card section-spacer">
+            <div class="section-heading">
+                <span class="section-kicker">Overview</span>
+                <h3>Designed for practical early-stage molecular prioritization</h3>
+                <p>
+                    MolScore-PK is intended for descriptor-based molecular profiling rather than docking score prediction,
+                    binding affinity estimation, or experimentally measured pharmacokinetic output. The platform is built to
+                    support structured screening, rule-based interpretation, medicinal chemistry alerting, and comparison of
+                    small molecules in a consistent report-oriented workflow.
+                </p>
+            </div>
+        </section>
+
+        <section class="panel-card section-spacer">
+            <div class="section-heading">
+                <span class="section-kicker">Capabilities</span>
+                <h3>Core platform functions</h3>
+                <p>Key features available in the current server version.</p>
+            </div>
+
+            <div class="feature-grid modern-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🧪</div>
+                    <h4>Input Modes</h4>
+                    <p>Single SMILES, batch SMILES, local JSME drawing, and CSV upload using a <strong>smiles</strong> column.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h4>Descriptor Calculation</h4>
+                    <p>Molecular weight, LogP, HBD, HBA, TPSA, rotatable bonds, heavy atoms, ring content, aromaticity, and fraction Csp3.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🧬</div>
+                    <h4>Drug-Likeness Rules</h4>
+                    <p>Lipinski, Veber, Ghose, Rule of 3, and lead-like criteria for practical medicinal chemistry filtering.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🚨</div>
+                    <h4>Medicinal Chemistry Alerts</h4>
+                    <p>PAINS alerts, Brenk alerts, and synthetic accessibility support where available in the active environment.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel-card section-spacer emphasis-panel" id="quick-profile">
+            <div class="section-heading">
+                <span class="section-kicker">Quick Start</span>
+                <h3>Run molecular profiling directly from the home page</h3>
+                <p>
+                    This submission form is fully aligned with the current Flask backend and provides a direct entry point
+                    for single-molecule analysis, batch profiling, structure drawing, or CSV-based screening.
+                </p>
+            </div>
+
+            <form method="POST" action="{{ url_for('predict') }}" enctype="multipart/form-data" class="prediction-form">
+                <div class="form-row">
+                    <label for="input_method">Select input method</label>
+                    <select name="input_method" id="input_method" class="form-control">
+                        <option value="single" selected>Single SMILES</option>
+                        <option value="batch">Batch SMILES</option>
+                        <option value="draw">Draw Molecule</option>
+                        <option value="upload">Upload CSV</option>
+                    </select>
+                </div>
+
+                <div id="single_block" class="input-section">
+                    <label for="single_smiles">Single SMILES</label>
+                    <input
+                        type="text"
+                        id="single_smiles"
+                        name="single_smiles"
+                        class="form-control"
+                        placeholder="Example: CCO"
+                    >
+                    <p class="field-note">Use this mode for one compound at a time.</p>
+                </div>
+
+                <div id="batch_block" class="input-section hidden">
+                    <label for="batch_smiles">Batch SMILES</label>
+                    <textarea
+                        id="batch_smiles"
+                        name="batch_smiles"
+                        class="form-control large-textarea"
+                        placeholder="CCO&#10;CCN&#10;c1ccccc1"
+                    ></textarea>
+                    <p class="field-note">Enter one SMILES per line. Maximum 50 molecules per run.</p>
+                </div>
+
+                <div id="draw_block" class="input-section hidden">
+                    <label>Draw Molecule</label>
+
+                    <div class="draw-grid">
+                        <div class="draw-card">
+                            <div id="jsme_container" class="jsme-container"></div>
+                        </div>
+
+                        <div class="side-info-column">
+                            <div class="info-card">
+                                <h4>Drawn SMILES</h4>
+                                <textarea
+                                    id="drawn_smiles_preview"
+                                    class="form-control smiles-preview"
+                                    readonly
+                                    placeholder="Your drawn structure will appear here as SMILES."
+                                ></textarea>
+                                <input type="hidden" name="drawn_smiles" id="drawn_smiles">
+                            </div>
+
+                            <div class="info-card">
+                                <h4>How it works</h4>
+                                <ul>
+                                    <li>Draw the molecule in the local JSME editor.</li>
+                                    <li>Click <strong>Update Drawn SMILES</strong>.</li>
+                                    <li>The generated string is submitted as <strong>drawn_smiles</strong>.</li>
+                                </ul>
+                                <button type="button" class="primary-button" onclick="updateDrawnSmiles()" style="margin-top: 12px;">
+                                    Update Drawn SMILES
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="upload_block" class="input-section hidden">
+                    <label for="file_upload">Upload CSV file</label>
+                    <input
+                        type="file"
+                        id="file_upload"
+                        name="file_upload"
+                        class="form-control file-control"
+                        accept=".csv"
+                    >
+                    <p class="field-note">CSV must contain a column named <strong>smiles</strong>.</p>
+                </div>
+
+                <div class="input-section inline-check">
+                    <label>
+                        <input type="checkbox" name="standardize" checked>
+                        Standardize SMILES before profiling
+                    </label>
+                </div>
+
+                <div class="action-row">
+                    <button type="submit" class="primary-button large-button">Run MolScore-PK</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="panel-card section-spacer">
+            <div class="section-heading">
+                <span class="section-kicker">Scientific Scope</span>
+                <h3>How current outputs should be interpreted</h3>
+                <p>
+                    Current outputs are descriptor-based and rule-based assessments. They should not be interpreted as
+                    experimentally validated pharmacokinetic endpoints or target-specific activity predictions.
+                </p>
+            </div>
+
+            <div class="two-col-info">
+                <div class="info-card">
+                    <h4>Included Assessments</h4>
+                    <ul>
+                        <li>BBB assessment</li>
+                        <li>Absorption assessment</li>
+                        <li>Permeability assessment</li>
+                        <li>Solubility risk</li>
+                        <li>Flexibility risk</li>
+                        <li>Polarity, size, and hydrophobicity classes</li>
+                    </ul>
+                </div>
+
+                <div class="info-card">
+                    <h4>Output Format</h4>
+                    <ul>
+                        <li>Summary table</li>
+                        <li>Detailed molecule report cards</li>
+                        <li>RDKit 2D structure image</li>
+                        <li>Radar-style visualization</li>
+                        <li>CSV export for downstream analysis</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="split-info-panel section-spacer">
+            <div class="panel-card">
+                <div class="section-heading">
+                    <span class="section-kicker">Developer</span>
+                    <h3>Scientific background</h3>
+                    <p>
+                        Dr. Muhammad Shahab works in computational drug discovery, computer-aided drug design,
+                        cheminformatics, structure-based modeling, machine learning for molecular prioritization,
+                        molecular docking, and molecular dynamics simulations.
+                    </p>
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <div class="section-heading">
+                    <span class="section-kicker">Contact</span>
+                    <h3>Affiliation and communication</h3>
+                </div>
+
+                <div class="contact-container">
+                    <div class="contact-block">
+                        <h4>Affiliation</h4>
+                        <p class="contact-line">
+                            Guangdong Medical University Key Laboratory of Big Data Mining and Precision Drug Design,
+                            Guangdong Provincial Key Laboratory for Research and Development of Natural Drugs,
+                            School of Pharmacy, Guangdong Medical University, Dongguan 523808, China.
+                        </p>
+                    </div>
+
+                    <div class="contact-block">
+                        <h4>Direct Contact</h4>
+                        <p class="contact-line"><strong>Email:</strong> Shahabkhan1852@gmail.com</p>
+                        <p class="contact-line"><strong>Platform URL:</strong> https://www.molscore-pk.com</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer-block">
+            <p>Copyright © 2026 MolScore-PK. All rights reserved.</p>
+            <p>Last update: March 25, 2026</p>
+        </footer>
+    </main>
+</div>
+
+<script>
+    let jsmeApplet = null;
+
+    function jsmeOnLoad() {
+        const target = document.getElementById("jsme_container");
+        if (!target || typeof JSApplet === "undefined") {
+            return;
+        }
+
+        try {
+            jsmeApplet = new JSApplet.JSME("jsme_container", "760px", "500px", {
+                "options": "oldlook,star"
+            });
+        } catch (e) {
+            console.error("JSME could not be initialized:", e);
+        }
+    }
+
+    function updateDrawnSmiles() {
+        if (!jsmeApplet) {
+            return;
+        }
+
+        try {
+            const smiles = jsmeApplet.smiles();
+            document.getElementById("drawn_smiles").value = smiles || "";
+            document.getElementById("drawn_smiles_preview").value = smiles || "";
+        } catch (e) {
+            console.error("Failed to extract SMILES from JSME:", e);
+        }
+    }
+
+    function updateInputBlocks() {
+        const method = document.getElementById("input_method").value;
+
+        const blocks = {
+            single: document.getElementById("single_block"),
+            batch: document.getElementById("batch_block"),
+            draw: document.getElementById("draw_block"),
+            upload: document.getElementById("upload_block")
+        };
+
+        Object.keys(blocks).forEach(function (key) {
+            blocks[key].classList.add("hidden");
+        });
+
+        if (blocks[method]) {
+            blocks[method].classList.remove("hidden");
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        updateInputBlocks();
+        document.getElementById("input_method").addEventListener("change", updateInputBlocks);
+    });
+</script>
+</body>
+</html>

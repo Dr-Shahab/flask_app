@@ -1,0 +1,211 @@
+<!-- DOCUMENTATION -->
+<section class="panel-card">
+
+    <div class="panel-header">
+        <h3>Overview</h3>
+        <p>
+            MolScore-PK is a web-based molecular profiling platform designed for early-stage
+            compound evaluation using descriptor-based analysis and rule-based interpretation.
+            The system computes physicochemical properties, evaluates drug-likeness criteria,
+            identifies medicinal chemistry alerts, and generates a composite prioritization score
+            to support comparative analysis of small molecules.
+        </p>
+
+        <p>
+            The platform accepts molecular structures in SMILES format and provides structured
+            outputs including descriptor summaries, classification results, and visualization-ready
+            molecular reports. The results are intended for screening support rather than experimental
+            pharmacokinetic prediction or target-specific activity modeling.
+        </p>
+    </div>
+
+</section>
+
+<!-- USAGE -->
+<section class="panel-card">
+
+    <div class="panel-header">
+        <h3>Usage</h3>
+    </div>
+
+    <div class="doc-section">
+
+        <h4>Step 1. Select a Method to Enter Molecules</h4>
+        <p>The platform supports multiple input methods to accommodate both single-molecule evaluation and small batch screening:</p>
+
+        <ul>
+            <li><strong>Single SMILES:</strong> Enter one SMILES string for rapid profiling.</li>
+            <li><strong>Batch SMILES:</strong> Enter multiple SMILES (one per line).</li>
+            <li><strong>Draw Molecule:</strong> Use the integrated JSME editor to sketch a structure.</li>
+            <li><strong>Upload File:</strong> Upload a CSV file containing a column named <code>smiles</code> (maximum 50 molecules).</li>
+        </ul>
+
+    </div>
+
+    <div class="doc-section">
+
+        <h4>Step 2. Submit for Profiling</h4>
+        <p>
+            After selecting the input method, submit the molecules using the analysis button.
+            The server processes each molecule individually and generates descriptor-based outputs.
+        </p>
+
+    </div>
+
+    <div class="doc-section">
+
+        <h4>Step 3. Output Structure</h4>
+        <p>The prediction results are presented in two main formats:</p>
+
+        <ul>
+            <li><strong>Summary Table:</strong> Provides a compact overview of all molecules, including descriptors, rule-based evaluations, and ranking scores.</li>
+            <li><strong>Molecule Report Cards:</strong> Detailed sections for each molecule including structure visualization, descriptor values, radar profile, and interpretation.</li>
+        </ul>
+
+    </div>
+
+</section>
+
+<!-- OUTPUT DESCRIPTION -->
+<section class="panel-card">
+
+    <div class="panel-header">
+        <h3>Output Description</h3>
+    </div>
+
+    <div class="doc-section">
+
+        <h4>Calculated Molecular Descriptors</h4>
+        <p>
+            The platform computes key physicochemical properties including molecular weight (MW),
+            LogP, topological polar surface area (TPSA), hydrogen bond donors (HBD),
+            hydrogen bond acceptors (HBA), rotatable bonds, aromatic ring count,
+            fraction Csp3, molar refractivity, and heteroatom count.
+        </p>
+
+    </div>
+
+    <div class="doc-section">
+
+        <h4>Drug-Likeness Evaluation</h4>
+        <p>
+            Multiple rule-based filters are applied to assess drug-likeness:
+        </p>
+        <ul>
+            <li>Lipinski Rule of Five</li>
+            <li>Veber Rule</li>
+            <li>Ghose Filter</li>
+            <li>Rule of 3</li>
+            <li>Lead-like criteria</li>
+        </ul>
+
+    </div>
+
+    <div class="doc-section">
+
+        <h4>Property-Based Assessment</h4>
+        <p>
+            Descriptor-driven heuristics are used to classify molecular properties:
+        </p>
+        <ul>
+            <li>Blood–brain barrier (BBB) tendency</li>
+            <li>Oral absorption potential</li>
+            <li>Permeability classification</li>
+            <li>Solubility risk</li>
+            <li>Flexibility and polarity class</li>
+        </ul>
+
+    </div>
+
+    <div class="doc-section">
+
+        <h4>Medicinal Chemistry Alerts</h4>
+        <p>
+            Structural alerts are identified using curated filters:
+        </p>
+        <ul>
+            <li><strong>PAINS:</strong> potential assay interference motifs</li>
+            <li><strong>Brenk:</strong> undesirable structural fragments</li>
+            <li><strong>SA Score:</strong> synthetic accessibility estimation</li>
+        </ul>
+
+    </div>
+
+</section>
+
+<!-- RANKING -->
+<section class="panel-card">
+
+    <div class="panel-header">
+        <h3>Descriptor-Based Ranking</h3>
+        <p>
+            Each molecule is assigned a normalized composite score derived from selected
+            physicochemical descriptors. This score reflects the balance between size,
+            lipophilicity, polarity, and flexibility.
+        </p>
+    </div>
+
+    <div class="doc-section">
+        <p>
+            The ranking score is further categorized into qualitative classes:
+        </p>
+        <ul>
+            <li><strong>Excellent</strong></li>
+            <li><strong>Good</strong></li>
+            <li><strong>Moderate</strong></li>
+            <li><strong>Poor</strong></li>
+        </ul>
+    </div>
+
+</section>
+
+<!-- INTERPRETATION -->
+<section class="panel-card">
+
+    <div class="panel-header">
+        <h3>Interpretation</h3>
+    </div>
+
+    <div class="doc-section">
+
+        <p>
+            The results generated by MolScore-PK are based on calculated descriptors and
+            rule-based evaluation. They are intended for:
+        </p>
+
+        <ul>
+            <li>Early-stage compound screening</li>
+            <li>Medicinal chemistry comparison</li>
+            <li>Property-based prioritization</li>
+            <li>Pre-filtering before QSAR or docking workflows</li>
+        </ul>
+
+        <p><strong>Note:</strong></p>
+        <ul>
+            <li>The outputs are not experimental pharmacokinetic data.</li>
+            <li>The ranking is not target-specific.</li>
+            <li>Invalid SMILES cannot be evaluated.</li>
+            <li>Final decisions require expert validation.</li>
+        </ul>
+
+    </div>
+
+</section>
+
+<!-- TECH -->
+<section class="panel-card">
+
+    <div class="panel-header">
+        <h3>Technical Summary</h3>
+    </div>
+
+    <div class="doc-section">
+        <ul>
+            <li><strong>Backend:</strong> Flask-based Python web application</li>
+            <li><strong>Cheminformatics:</strong> RDKit for molecular processing and descriptor calculation</li>
+            <li><strong>Editor:</strong> JSME molecular drawing interface</li>
+            <li><strong>Future Work:</strong> QSAR modeling, machine learning scoring, docking integration</li>
+        </ul>
+    </div>
+
+</section>
