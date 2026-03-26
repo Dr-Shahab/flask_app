@@ -2,229 +2,676 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MolScore-PK | Descriptor-Based Molecular Profiling Platform</title>
-    <meta name="description" content="MolScore-PK is a web-based platform for descriptor-driven molecular profiling, medicinal chemistry assessment, and early-stage compound prioritization.">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>MolScore-PK | Next-Gen Molecular Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --primary-glow: rgba(99, 102, 241, 0.4);
+            --secondary: #ec489a;
+            --secondary-dark: #db2777;
+            --accent: #14b8a6;
+            --dark: #0f172a;
+            --dark-light: #1e293b;
+            --gray: #64748b;
+            --gray-light: #94a3b8;
+            --bg-dark: #020617;
+            --bg-card: rgba(15, 23, 42, 0.7);
+            --border-glow: rgba(99, 102, 241, 0.3);
+            --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.2);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: #ffffff;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.15), transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.12), transparent 50%),
+                        radial-gradient(circle at 40% 20%, rgba(20, 184, 166, 0.1), transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            width: min(100% - 32px, 1280px);
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            margin-top: 20px;
+            border-radius: 80px;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .topbar-inner {
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            flex-wrap: wrap;
+            padding: 8px 24px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-mark {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            font-weight: 800;
+            font-size: 1.3rem;
+            box-shadow: 0 0 20px var(--primary-glow);
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
+            50% { box-shadow: 0 0 35px rgba(99, 102, 241, 0.6); }
+        }
+
+        .brand-text h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, var(--primary-light));
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .brand-text p {
+            font-size: 0.8rem;
+            color: var(--gray-light);
+        }
+
+        .nav {
+            display: flex;
+            gap: 12px;
+        }
+
+        .nav a {
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            color: var(--gray-light);
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+
+        .nav a:hover {
+            background: rgba(99, 102, 241, 0.2);
+            color: white;
+        }
+
+        .nav .nav-cta {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .hero {
+            padding: 60px 0 40px;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 32px;
+            align-items: stretch;
+        }
+
+        .hero-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 48px;
+            box-shadow: var(--shadow-xl);
+            transition: all 0.4s;
+            overflow: hidden;
+        }
+
+        .hero-main {
+            padding: 48px;
+            position: relative;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(236, 72, 153, 0.2));
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            padding: 8px 20px;
+            border-radius: 60px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 28px;
+        }
+
+        .hero-main h2 {
+            font-size: clamp(2.5rem, 4vw, 4rem);
+            line-height: 1.1;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #ffffff, var(--primary-light), var(--secondary));
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .hero-lead {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: var(--gray-light);
+            margin-bottom: 32px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 32px;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(99, 102, 241, 0.5);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid rgba(99, 102, 241, 0.5);
+            color: white;
+        }
+
+        .btn-outline:hover {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        /* --- UPDATED RIGHT PANEL --- */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: var(--bg-card);
+        }
+
+        .banner-image-wrapper {
+            width: 100%;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            margin: 0;
+            position: relative;
+            overflow: hidden;
+            flex-grow: 1;
+        }
+
+        .banner-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            min-height: 380px;
+            object-fit: cover;
+            display: block;
+            filter: drop-shadow(0 0 15px rgba(99, 102, 241, 0.15));
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .banner-image-wrapper img:hover {
+            transform: scale(1.05);
+        }
+
+        .arch-flow {
+            padding: 24px 28px;
+            background: rgba(15, 23, 42, 0.4);
+            border-top: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .flow-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .flow-node {
+            flex: 1;
+            text-align: center;
+            padding: 14px 8px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(236, 72, 153, 0.05));
+            border-radius: 20px;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .flow-icon { font-size: 1.5rem; margin-bottom: 5px; color: var(--primary-light); }
+        .flow-node span { font-size: 0.8rem; font-weight: 700; display: block; }
+        .arrow { color: var(--primary); font-size: 1.2rem; }
+
+        .tech-stack {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .tech-pill {
+            background: rgba(99, 102, 241, 0.1);
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        /* --- FEATURE CARDS --- */
+        .section { padding: 60px 0; }
+        .section-header { text-align: center; margin-bottom: 48px; }
+        .section-header h3 { font-size: 2.5rem; font-weight: 800; margin-bottom: 16px; }
+        .section-header p { color: var(--gray-light); }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 32px;
+            padding: 32px 24px;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .feature-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .feature-icon { font-size: 2rem; color: var(--primary); margin-bottom: 15px; }
+        .feature-card h4 { font-size: 1.2rem; margin-bottom: 12px; }
+        .feature-card p { color: var(--gray-light); font-size: 0.9rem; }
+
+        /* --- AFFILIATION SECTION --- */
+        .affiliation-section {
+            padding: 40px 0 60px;
+        }
+
+        .affiliation-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 28px;
+            margin-bottom: 32px;
+        }
+
+        .affiliation-card {
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 32px;
+            padding: 32px;
+            transition: all 0.3s;
+        }
+
+        .affiliation-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.1);
+        }
+
+        .affiliation-icon {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .affiliation-card h4 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--primary-light);
+        }
+
+        .affiliation-card p {
+            color: var(--gray-light);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .affiliation-links {
+            display: flex;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .affiliation-links a {
+            color: var(--gray-light);
+            transition: color 0.3s;
+            font-size: 1.2rem;
+        }
+
+        .affiliation-links a:hover {
+            color: var(--primary);
+        }
+
+        .institution-card {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(236, 72, 153, 0.08));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 32px;
+            padding: 32px;
+            text-align: center;
+        }
+
+        .institution-card i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 16px;
+        }
+
+        .institution-card h4 {
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+        }
+
+        .institution-card p {
+            color: var(--gray-light);
+            line-height: 1.6;
+        }
+
+        .footer {
+            padding: 40px 0;
+            text-align: center;
+            border-top: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .footer p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 1024px) {
+            .hero-grid, .features-grid, .affiliation-grid {
+                grid-template-columns: 1fr;
+            }
+            .banner-image-wrapper img { min-height: 250px; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+        .floating { animation: float 6s ease-in-out infinite; }
+    </style>
 </head>
 <body>
-    <div class="app-shell">
-        <aside class="sidebar">
-            <div class="brand-block">
-                <div class="brand-badge">MolScore-PK</div>
+<div class="grid-overlay"></div>
+
+<header class="topbar">
+    <div class="container topbar-inner">
+        <div class="brand">
+            <div class="brand-mark">⚡</div>
+            <div class="brand-text">
                 <h1>MolScore-PK</h1>
-                <p>Descriptor-based molecular profiling and early-stage compound prioritization platform</p>
+                <p>Next-Gen Molecular Profiling</p>
             </div>
-
-            <nav class="sidebar-nav">
-                <a href="{{ url_for('home') }}" class="active">🏠 Home</a>
-                <a href="{{ url_for('prediction') }}">🧪 Prediction</a>
-                <a href="{{ url_for('documentation') }}">📘 Documentation</a>
-            </nav>
-
-            <div class="sidebar-foot">
-                <div class="mini-status-card">
-                    <span class="mini-label">Input Modes</span>
-                    <strong>SMILES, Draw, CSV</strong>
-                </div>
-                <div class="mini-status-card">
-                    <span class="mini-label">Engine</span>
-                    <strong>Flask + RDKit</strong>
-                </div>
-            </div>
-        </aside>
-
-        <main class="main-panel">
-            <section class="hero-panel home-banner">
-                <div class="home-hero-grid">
-                    <div class="home-hero-text">
-                        <span class="eyebrow">Early-stage molecular profiling web server</span>
-                        <h2>Professional descriptor-based screening for small molecules</h2>
-                        <p class="hero-lead">
-                            MolScore-PK provides a unified environment for molecular descriptor calculation,
-                            drug-likeness analysis, medicinal chemistry alerting, property-oriented assessment,
-                            and dataset-level prioritization to support practical early-stage drug discovery workflows.
-                        </p>
-
-                        <div class="hero-actions">
-                            <a href="{{ url_for('prediction') }}" class="primary-button">Start Profiling</a>
-                            <a href="{{ url_for('documentation') }}" class="secondary-button">View Documentation</a>
-                        </div>
-
-                        <div class="tag-row">
-                            <span class="tag-chip">Descriptor Profiling</span>
-                            <span class="tag-chip">Drug-Likeness Rules</span>
-                            <span class="tag-chip">PK-Oriented Assessment</span>
-                            <span class="tag-chip">Medicinal Chemistry Alerts</span>
-                        </div>
-                    </div>
-
-                    <div class="home-hero-image-wrap">
-                        <img src="{{ url_for('static', filename='banner.png') }}" alt="MolScore-PK scientific banner" class="home-hero-image">
-                    </div>
-                </div>
-            </section>
-
-            <section class="stats-strip">
-                <div class="stat-card">
-                    <span class="stat-value">4</span>
-                    <span class="stat-label">Input Modes</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-value">10+</span>
-                    <span class="stat-label">Descriptors</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-value">5</span>
-                    <span class="stat-label">Drug-Likeness Rules</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-value">50</span>
-                    <span class="stat-label">Max Molecules / Run</span>
-                </div>
-            </section>
-
-            <section class="panel-card section-spacer">
-                <div class="section-heading">
-                    <span class="section-kicker">Overview</span>
-                    <h3>Designed for practical early-stage molecular prioritization</h3>
-                    <p>
-                        MolScore-PK enables rapid molecular evaluation through descriptor-based profiling,
-                        rule-based medicinal chemistry interpretation, and PK-oriented heuristic assessment
-                        in a clean scientific interface suitable for comparative screening and structured reporting.
-                    </p>
-                </div>
-
-                <div class="feature-grid modern-grid">
-                    <div class="feature-card">
-                        <div class="feature-icon">🧪</div>
-                        <h4>Flexible Molecular Input</h4>
-                        <p>Submit a single SMILES, batch SMILES, upload a CSV file, or draw molecules interactively.</p>
-                    </div>
-
-                    <div class="feature-card">
-                        <div class="feature-icon">📊</div>
-                        <h4>Descriptor Profiling</h4>
-                        <p>Calculate molecular weight, LogP, TPSA, HBD, HBA, rotatable bonds, ring content, and related features.</p>
-                    </div>
-
-                    <div class="feature-card">
-                        <div class="feature-icon">🧬</div>
-                        <h4>Drug-Likeness Filtering</h4>
-                        <p>Apply Lipinski, Veber, Ghose, Rule of 3, and lead-like evaluation for medicinal chemistry screening.</p>
-                    </div>
-
-                    <div class="feature-card">
-                        <div class="feature-icon">🚨</div>
-                        <h4>Property and Alert Assessment</h4>
-                        <p>Review BBB tendency, absorption, permeability, flexibility, polarity, PAINS, Brenk, and synthetic accessibility.</p>
-                    </div>
-                </div>
-            </section>
-
-            <section class="panel-card section-spacer emphasis-panel">
-                <div class="section-heading">
-                    <span class="section-kicker">Scientific Scope</span>
-                    <h3>What the platform currently delivers</h3>
-                    <p>
-                        The current server focuses on descriptor-based and rule-based molecular profiling.
-                        It is intended for early-stage compound triage, medicinal chemistry comparison,
-                        and structured interpretation rather than experimental pharmacokinetic prediction
-                        or target-specific bioactivity estimation.
-                    </p>
-                </div>
-
-                <div class="two-col-info">
-                    <div class="info-card">
-                        <h4>Recommended Use</h4>
-                        <ul>
-                            <li>Early-stage compound screening</li>
-                            <li>Medicinal chemistry comparison</li>
-                            <li>Pre-filtering before QSAR or docking</li>
-                            <li>Small-batch prioritization</li>
-                            <li>Descriptor-aware report generation</li>
-                        </ul>
-                    </div>
-
-                    <div class="info-card">
-                        <h4>Current Output Style</h4>
-                        <ul>
-                            <li>Descriptor summary table</li>
-                            <li>Molecule-level scientific report cards</li>
-                            <li>2D structure rendering</li>
-                            <li>Radar-style visualization</li>
-                            <li>CSV export for downstream use</li>
-                        </ul>
-                    </div>
-                </div>
-            </section>
-
-            <section class="split-info-panel section-spacer">
-                <div class="panel-card">
-                    <div class="section-heading">
-                        <span class="section-kicker">Developer</span>
-                        <h3>Scientific Background</h3>
-                        <p>
-                            Dr. Muhammad Shahab works in computational drug discovery, computer-aided drug design,
-                            cheminformatics, molecular descriptor analysis, machine learning for molecular prioritization,
-                            molecular docking, and molecular dynamics simulations.
-                        </p>
-                    </div>
-
-                    <div class="contact-container">
-                        <div class="contact-block">
-                            <h4>Direct Contact</h4>
-                            <p class="contact-line">
-                                <strong>Email:</strong>
-                                <a href="mailto:Shahabkhan1852@gmail.com" class="contact-link">Shahabkhan1852@gmail.com</a>
-                            </p>
-                            <p class="contact-line">
-                                <strong>GitHub:</strong>
-                                <a href="https://github.com/Dr-Shahab" target="_blank" rel="noopener noreferrer" class="contact-link">github.com/Dr-Shahab</a>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="panel-card">
-                    <div class="section-heading">
-                        <span class="section-kicker">Affiliation</span>
-                        <h3>Laboratory and Institution</h3>
-                    </div>
-
-                    <div class="contact-container">
-                        <div class="contact-block">
-                            <h4>Research Environment</h4>
-                            <p class="contact-line lab-text">
-                                Guangdong Medical University Key Laboratory of Big Data Mining and Precision Drug Design,
-                                Guangdong Provincial Key Laboratory for Research and Development of Natural Drugs,
-                                School of Pharmacy, Guangdong Medical University, Dongguan 523808, China
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="panel-card section-spacer future">
-                <div class="section-heading">
-                    <span class="section-kicker">Roadmap</span>
-                    <h3>Planned platform extensions</h3>
-                    <p>
-                        Future development can include QSAR model integration, machine learning-assisted scoring,
-                        target-aware prioritization, docking workflow coupling, and richer compound interpretation modules.
-                    </p>
-                </div>
-            </section>
-
-            <section class="footer-block">
-                <p>
-                    Guangdong Provincial Key Laboratory for Research and Development of Natural Drugs,
-                    School of Pharmacy, Guangdong Medical University, Dongguan 523808, China
-                </p>
-                <p>© 2026 MolScore-PK. All rights reserved.</p>
-                <p>Last update: March 25, 2026</p>
-            </section>
-        </main>
+        </div>
+        <nav class="nav">
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('prediction') }}" class="nav-cta">Prediction <i class="fas fa-arrow-right"></i></a>
+            <a href="{{ url_for('documentation') }}">Documents</a>
+        </nav>
     </div>
+</header>
+
+<main>
+    <section class="hero">
+        <div class="container hero-grid">
+            <div class="hero-card hero-main">
+                <div class="badge">
+                    <i class="fas fa-bolt"></i> Powered by RDKit & Flask
+                </div>
+                <h2>MolScore-PK: Drug Profiling Platform</h2>
+                <p class="hero-lead">
+                    Transform your compound screening with AI-ready descriptors, real-time drug-likeness analysis,
+                    and medicinal chemistry alerts. From single SMILES to batch screening.
+                </p>
+                <div class="btn-group">
+                    <a class="btn btn-primary" href="{{ url_for('prediction') }}">
+                        <i class="fas fa-flask"></i> Start Profiling
+                    </a>
+                    <a class="btn btn-outline" href="{{ url_for('documentation') }}">
+                        <i class="fas fa-book-open"></i> Documentation
+                    </a>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">10K+</div>
+                        <p>Molecules/sec</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">25+</div>
+                        <p>Descriptors</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">7</div>
+                        <p>Rule Filters</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-card right-panel">
+                <div class="banner-image-wrapper">
+                    <img src="{{ url_for('static', filename='banner.png') }}" alt="MolScore-PK Engine" class="floating" onerror="this.src='https://via.placeholder.com/600x400/0f172a/6366f1?text=MolScore-PK+Architecture'">
+                </div>
+                
+                <div class="arch-flow">
+                    <div class="flow-row">
+                        <div class="flow-node">
+                            <i class="fas fa-laptop-code flow-icon"></i>
+                            <span>Web UI</span>
+                        </div>
+                        <div class="arrow"><i class="fas fa-chevron-right"></i></div>
+                        <div class="flow-node">
+                            <i class="fas fa-microchip flow-icon"></i>
+                            <span>RDKit Core</span>
+                        </div>
+                        <div class="arrow"><i class="fas fa-chevron-right"></i></div>
+                        <div class="flow-node">
+                            <i class="fas fa-chart-line flow-icon"></i>
+                            <span>Analytics</span>
+                        </div>
+                    </div>
+                    
+                    <div class="tech-stack">
+                        <span class="tech-pill">Flask</span>
+                        <span class="tech-pill">Radar Plots</span>
+                        <span class="tech-pill">Lipinski</span>
+                        <span class="tech-pill">JSME</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="section-header">
+                <h3>Cutting-Edge Features</h3>
+                <p>Prioritize your compounds with millisecond precision</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-tachometer-alt feature-icon"></i>
+                    <h4>Ultrafast Profiling</h4>
+                    <p>Millisecond descriptor calculation with parallelized RDKit engine</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-chart-radar feature-icon"></i>
+                    <h4>Interactive Radar Plots</h4>
+                    <p>Visualize drug-likeness at a glance with beautiful charts</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-exclamation-triangle feature-icon"></i>
+                    <h4>MedChem Alerts</h4>
+                    <p>PAINS, Brenk, and synthetic accessibility scoring</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-file-export feature-icon"></i>
+                    <h4>One-Click Export</h4>
+                    <p>CSV, Excel, and PDF reports for team collaboration</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AFFILIATION SECTION -->
+    <section class="affiliation-section">
+        <div class="container">
+            <div class="section-header">
+                <h3>Scientific Leadership & Affiliation</h3>
+                <p>World-class expertise driving molecular innovation</p>
+            </div>
+            <div class="affiliation-grid">
+                <div class="affiliation-card">
+                    <div class="affiliation-icon">
+                        <i class="fas fa-user-astronaut"></i>
+                    </div>
+                    <h4>Dr. Muhammad Shahab</h4>
+                    <p><strong>Lead Developer · Computational Chemist</strong></p>
+                    <p>Specializing in cheminformatics, molecular modeling, and drug discovery pipelines. Expert in RDKit integration and AI-driven molecular profiling.</p>
+                    <div class="affiliation-links">
+                        <a href="mailto:Shahabkhan1852@gmail.com"><i class="fas fa-envelope"></i></a>
+                        <a href="https://github.com/Dr-Shahab" target="_blank"><i class="fab fa-github"></i></a>
+                        <a href="https://orcid.org/0000-0002-4437-0711" target="_blank"><i class="fab fa-orcid"></i></a>
+                    </div>
+                </div>
+                <div class="affiliation-card">
+                    <div class="affiliation-icon">
+                        <i class="fas fa-chalkboard-user"></i>
+                    </div>
+                    <h4>Prof. Zunnan Huang</h4>
+                    <p><strong>Principal Investigator</strong></p>
+                    <p>Director, Key Laboratory of Big Data Mining & Precision Drug Design. Leading research in computational pharmacology and AI-assisted drug discovery.</p>
+                    <div class="affiliation-links">
+                        <a href="mailto:zn_huang@gdmu.edu.cn"><i class="fas fa-envelope"></i></a>
+                        <a href="https://orcid.org/0000-0002-5821-703X" target="_blank"><i class="fab fa-orcid"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="institution-card">
+                <i class="fas fa-university"></i>
+                <h4>Guangdong Medical University</h4>
+                <p>Key Laboratory of Big Data Mining and Precision Drug Design<br>
+                Guangdong Provincial Key Laboratory for Research and Development of Natural Drugs<br>
+                School of Pharmacy, Dongguan 523808, China</p>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="footer">
+    <div class="container">
+        <p>© 2026 MolScore-PK. All rights reserved. | Last Update: March 25, 2026</p>
+    </div>
+</footer>
+
 </body>
 </html>

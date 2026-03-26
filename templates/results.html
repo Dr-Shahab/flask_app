@@ -2,351 +2,1250 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prediction Results | MolScore-PK</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Molecular Profiling Results | MolScore-PK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #6366f1;
+            --secondary: #ec489a;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #3b82f6;
+            --gray: #64748b;
+            --gray-light: #94a3b8;
+            --bg-dark: #020617;
+            --bg-card: rgba(15, 23, 42, 0.88);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.18), transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.14), transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(99, 102, 241, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            width: min(100% - 32px, 1420px);
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            margin-top: 20px;
+            border-radius: 80px;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(99, 102, 241, 0.35);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        .topbar-inner {
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            flex-wrap: wrap;
+            padding: 8px 24px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-mark {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            font-weight: 800;
+            font-size: 1.3rem;
+            box-shadow: 0 0 20px rgba(99,102,241,0.45);
+        }
+
+        .brand-text h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #818cf8);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .brand-text p {
+            font-size: 0.8rem;
+            color: var(--gray-light);
+        }
+
+        .nav {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav a {
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            color: var(--gray-light);
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+
+        .nav a:hover {
+            background: rgba(99, 102, 241, 0.25);
+            color: white;
+        }
+
+        .hero-banner {
+            background: linear-gradient(135deg, rgba(99,102,241,0.30), rgba(236,72,153,0.20));
+            border-radius: 40px;
+            padding: 42px;
+            margin: 36px 0 28px;
+            border: 1px solid rgba(99,102,241,0.30);
+            backdrop-filter: blur(10px);
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(99, 102, 241, 0.20);
+            padding: 8px 18px;
+            border-radius: 60px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 18px;
+        }
+
+        .hero-banner h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            margin-bottom: 14px;
+            background: linear-gradient(135deg, #fff, #818cf8, #ec489a);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .hero-banner p {
+            font-size: 1.05rem;
+            color: var(--gray-light);
+            line-height: 1.65;
+            max-width: 980px;
+        }
+
+        .stats-grid, .batch-grid, .property-grid, .fit-label-grid, .liability-grid, .score-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(4, 1fr);
+            margin-bottom: 28px;
+        }
+
+        .batch-grid {
+            grid-template-columns: repeat(5, 1fr);
+            margin-bottom: 32px;
+        }
+
+        .property-grid {
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        }
+
+        .fit-label-grid {
+            grid-template-columns: repeat(5, 1fr);
+        }
+
+        .liability-grid {
+            grid-template-columns: repeat(6, 1fr);
+        }
+
+        .score-grid {
+            grid-template-columns: repeat(6, 1fr);
+        }
+
+        .stat-card, .batch-card, .property-item, .fit-label, .liability-item, .score-item {
+            background: rgba(15, 23, 42, 0.62);
+            border: 1px solid rgba(99, 102, 241, 0.18);
+            border-radius: 22px;
+            padding: 18px;
+        }
+
+        .stat-card { text-align: center; }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #818cf8, #ec489a);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .stat-label, .mini-label {
+            color: var(--gray-light);
+            font-size: 0.86rem;
+            margin-top: 6px;
+        }
+
+        .batch-card .value, .property-value, .score-value {
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin-top: 6px;
+        }
+
+        .molecule-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(99,102,241,0.20);
+            border-radius: 30px;
+            margin-bottom: 32px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 26px 32px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.14), rgba(236,72,153,0.08));
+            border-bottom: 1px solid rgba(99,102,241,0.18);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .molecule-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #818cf8;
+        }
+
+        .status-badge {
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-valid {
+            background: rgba(16, 185, 129, 0.18);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.35);
+        }
+
+        .status-invalid {
+            background: rgba(239, 68, 68, 0.18);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.35);
+        }
+
+        .info-panel {
+            background: rgba(15,23,42,0.50);
+            border-radius: 24px;
+            padding: 24px;
+            border: 1px solid rgba(99,102,241,0.16);
+            margin: 24px 32px;
+        }
+
+        .panel-title {
+            font-size: 1.06rem;
+            font-weight: 700;
+            color: #818cf8;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(99,102,241,0.20);
+            padding-bottom: 12px;
+        }
+
+        .structure-image {
+            background: rgba(15,23,42,0.65);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 18px;
+            border: 1px solid rgba(99,102,241,0.12);
+        }
+
+        .structure-image img {
+            max-width: 100%;
+            max-height: 250px;
+            object-fit: contain;
+        }
+
+        .smiles-box {
+            background: rgba(0,0,0,0.35);
+            border-radius: 16px;
+            padding: 12px 16px;
+            font-family: monospace;
+            font-size: 0.84rem;
+            word-break: break-all;
+            margin-top: 12px;
+            border: 1px solid rgba(99,102,241,0.16);
+            color: #dbe6ff;
+        }
+
+        .property-label {
+            font-size: 0.72rem;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            line-height: 1.35;
+        }
+
+        .property-value {
+            color: white;
+            margin-top: 6px;
+        }
+
+        .property-unit {
+            font-size: 0.72rem;
+            color: var(--gray);
+        }
+
+        .reference-range {
+            font-size: 0.68rem;
+            color: #818cf8;
+            margin-top: 5px;
+            line-height: 1.45;
+        }
+
+        .fit-label {
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(135deg, rgba(99,102,241,0.24), rgba(236,72,153,0.20));
+        }
+
+        .liability-item {
+            text-align: center;
+        }
+
+        .liability-item.green {
+            border-color: rgba(16,185,129,0.45);
+            box-shadow: inset 0 0 0 1px rgba(16,185,129,0.12);
+        }
+
+        .liability-item.amber {
+            border-color: rgba(245,158,11,0.45);
+            box-shadow: inset 0 0 0 1px rgba(245,158,11,0.12);
+        }
+
+        .liability-item.red {
+            border-color: rgba(239,68,68,0.45);
+            box-shadow: inset 0 0 0 1px rgba(239,68,68,0.12);
+        }
+
+        .liability-status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+        }
+
+        .green .liability-status-dot { background: #10b981; }
+        .amber .liability-status-dot { background: #f59e0b; }
+        .red .liability-status-dot { background: #ef4444; }
+
+        .liability-label {
+            font-size: 0.78rem;
+            color: var(--gray-light);
+            text-transform: uppercase;
+        }
+
+        .liability-value {
+            margin-top: 8px;
+            font-weight: 800;
+            font-size: 1rem;
+        }
+
+        .suggestion-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .suggestion-item {
+            background: rgba(0,0,0,0.24);
+            border: 1px solid rgba(99,102,241,0.14);
+            border-radius: 16px;
+            padding: 14px 16px;
+            color: #dbe6ff;
+            line-height: 1.55;
+        }
+
+        .radar-wrapper {
+            background: linear-gradient(180deg, #ffffff, #f6f8fc);
+            border-radius: 22px;
+            padding: 20px;
+            border: 1px solid rgba(15,23,42,0.08);
+            min-height: 470px;
+        }
+
+        .radar-canvas-wrap {
+            position: relative;
+            width: 100%;
+            height: 420px;
+        }
+
+        .radar-canvas-wrap canvas {
+            width: 100% !important;
+            height: 100% !important;
+            display: block;
+        }
+
+        .download-radar-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            padding: 8px 18px;
+            border-radius: 40px;
+            color: white;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .two-column-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            padding: 0 32px 32px 32px;
+        }
+
+        .section-card {
+            background: rgba(15,23,42,0.42);
+            border-radius: 22px;
+            padding: 22px;
+            border: 1px solid rgba(99,102,241,0.18);
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #818cf8;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(99,102,241,0.20);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .descriptor-row {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(99,102,241,0.12);
+        }
+
+        .descriptor-row:last-child {
+            border-bottom: none;
+        }
+
+        .descriptor-main {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .descriptor-name {
+            color: var(--gray-light);
+            font-weight: 500;
+        }
+
+        .descriptor-value {
+            color: #fff;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        .descriptor-subtext {
+            margin-top: 6px;
+            color: #9fb0c8;
+            font-size: 0.78rem;
+            line-height: 1.45;
+        }
+
+        .action-buttons {
+            padding: 24px 32px 32px 32px;
+            display: flex;
+            gap: 16px;
+            border-top: 1px solid rgba(99,102,241,0.16);
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid rgba(99,102,241,0.50);
+            color: white;
+        }
+
+        .invalid-box {
+            padding: 60px;
+            text-align: center;
+        }
+
+        .invalid-box p {
+            margin-top: 20px;
+            font-size: 1.05rem;
+            color: #d8dee9;
+        }
+
+        @media (max-width: 1200px) {
+            .batch-grid,
+            .fit-label-grid,
+            .liability-grid,
+            .score-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .stats-grid,
+            .two-column-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .topbar-inner {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .nav {
+                justify-content: center;
+            }
+
+            .stats-grid,
+            .property-grid,
+            .liability-grid,
+            .score-grid,
+            .fit-label-grid,
+            .batch-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-banner {
+                padding: 28px 24px;
+                border-radius: 28px;
+            }
+
+            .info-panel {
+                margin: 16px;
+            }
+
+            .two-column-grid {
+                padding: 0 16px 16px 16px;
+            }
+
+            .card-header {
+                padding: 22px 20px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                padding: 20px 16px 24px 16px;
+            }
+
+            .btn {
+                justify-content: center;
+            }
+
+            .radar-canvas-wrap {
+                height: 360px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="app-shell">
-        <aside class="sidebar">
-            <div class="brand-block">
-                <div class="brand-badge">MolScore-PK</div>
+<div class="grid-overlay"></div>
+
+<header class="topbar">
+    <div class="container topbar-inner">
+        <div class="brand">
+            <div class="brand-mark">⚡</div>
+            <div class="brand-text">
                 <h1>MolScore-PK</h1>
-                <p>Descriptor-based molecular profiling and early-stage prioritization platform</p>
+                <p>MolScore-PK: Drug Profiling Platform</p>
             </div>
+        </div>
+        <nav class="nav">
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('prediction') }}">Prediction</a>
+            <a href="{{ url_for('documentation') }}">Documentation</a>
+        </nav>
+    </div>
+</header>
 
-            <nav class="sidebar-nav">
-                <a href="{{ url_for('home') }}">🏠 Home</a>
-                <a href="{{ url_for('prediction') }}">🧪 Prediction</a>
-                <a href="{{ url_for('documentation') }}">📘 Documentation</a>
-            </nav>
+<main>
+    <div class="container">
+        <div class="hero-banner">
+            <div class="eyebrow">
+                <i class="fas fa-flask"></i> Next-step aware CADD profiling
+            </div>
+            <h2>Molecular Profiling Results</h2>
+            <p>
+                MolScore-PK combines descriptor calculation with medicinal chemistry Platform,
+                liability mapping, scaffold-aware summarization, and optimization suggestions
+                for early discovery workflows.
+            </p>
+        </div>
 
-            <div class="sidebar-foot">
-                <div class="mini-status-card">
-                    <span class="mini-label">Processed Molecules</span>
-                    <strong>{{ results|length }}</strong>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">{{ results|length }}</div>
+                <div class="stat-label">Molecules Analyzed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ results | selectattr('status', 'equalto', 'Valid') | list | length }}</div>
+                <div class="stat-label">Valid Structures</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ results | rejectattr('status', 'equalto', 'Valid') | list | length }}</div>
+                <div class="stat-label">Invalid Inputs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ "%.2f"|format(runtime) if runtime is defined else "0.00" }} s</div>
+                <div class="stat-label">Processing Time</div>
+            </div>
+        </div>
+
+        {% if batch_summary %}
+        <div class="info-panel" style="margin-top:0;">
+            <div class="panel-title">
+                <i class="fas fa-layer-group"></i> Batch Summary
+            </div>
+            <div class="batch-grid">
+                <div class="batch-card">
+                    <div class="mini-label">Valid Molecules</div>
+                    <div class="value">{{ batch_summary.valid_count }}</div>
                 </div>
-                <div class="mini-status-card">
-                    <span class="mini-label">Runtime</span>
-                    <strong>{% if runtime is defined %}{{ runtime }} s{% else %}Available after run{% endif %}</strong>
+                <div class="batch-card">
+                    <div class="mini-label">Unique Scaffolds</div>
+                    <div class="value">{{ batch_summary.scaffold_count }}</div>
+                </div>
+                <div class="batch-card">
+                    <div class="mini-label">Average Ranking Score</div>
+                    <div class="value">{{ batch_summary.average_ranking_score }}</div>
+                </div>
+                <div class="batch-card">
+                    <div class="mini-label">Average MW</div>
+                    <div class="value">{{ batch_summary.average_mw }} <span class="property-unit">g/mol</span></div>
+                </div>
+                <div class="batch-card">
+                    <div class="mini-label">Top Molecule</div>
+                    <div class="value">#{{ batch_summary.top_molecule_id }} | {{ batch_summary.top_molecule_class }}</div>
                 </div>
             </div>
-        </aside>
+        </div>
+        {% endif %}
 
-        <main class="main-panel">
-            <section class="page-banner compact-banner">
-                <div class="page-banner-text">
-                    <span class="eyebrow eyebrow-light">Calculated molecular profiling output</span>
-                    <h2>Prediction Results</h2>
-                    <p>
-                        Descriptor-based profiling, medicinal chemistry rules, property-oriented assessments,
-                        and alert-aware prioritization for submitted molecules.
-                    </p>
-                </div>
-            </section>
-
-            <section class="stats-strip">
-                <div class="stat-card">
-                    <span class="stat-value">{{ results|length }}</span>
-                    <span class="stat-label">Molecules Processed</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-value">
-                        {{ results | selectattr('status', 'equalto', 'Valid') | list | length }}
+        {% for row in results %}
+        <div class="molecule-card">
+            <div class="card-header">
+                <div>
+                    <span class="molecule-number">#{{ row.id }}</span>
+                    <span style="margin-left: 16px; color: var(--gray-light); font-family: monospace;">
+                        {{ row.formula if row.formula is defined else "Molecule" }}
                     </span>
-                    <span class="stat-label">Valid Structures</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-value">
-                        {{ results | rejectattr('status', 'equalto', 'Valid') | list | length }}
-                    </span>
-                    <span class="stat-label">Invalid Inputs</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-value">
-                        {% if runtime is defined %}{{ runtime }} s{% else %}N/A{% endif %}
-                    </span>
-                    <span class="stat-label">Processing Time</span>
-                </div>
-            </section>
-
-            <section class="panel-card">
-                <div class="results-topbar">
-                    <div class="panel-header">
-                        <span class="section-kicker">Summary</span>
-                        <h3>Results Overview Table</h3>
-                        <p>
-                            A condensed view of molecule validity, core descriptors, alert counts,
-                            and prioritization score for rapid comparison across the submitted set.
-                        </p>
-                    </div>
-
-                    <div class="results-actions">
-                        <a href="{{ url_for('download_csv') }}" class="primary-button action-link">Download CSV</a>
-                        <a href="{{ url_for('prediction') }}" class="secondary-results-link">Analyze More Molecules</a>
-                    </div>
-                </div>
-
-                <div class="results-table-wrapper">
-                    <table class="results-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Input SMILES</th>
-                                <th>Canonical SMILES</th>
-                                <th>Status</th>
-                                <th>MW</th>
-                                <th>LogP</th>
-                                <th>TPSA</th>
-                                <th>HBD</th>
-                                <th>HBA</th>
-                                <th>RotB</th>
-                                <th>BBB</th>
-                                <th>Absorption</th>
-                                <th>Permeability</th>
-                                <th>PAINS</th>
-                                <th>Brenk</th>
-                                <th>SA Score</th>
-                                <th>Rank Score</th>
-                                <th>Rank Class</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for row in results %}
-                            <tr>
-                                <td>{{ row.id }}</td>
-                                <td class="smiles-cell">{{ row.smiles }}</td>
-                                <td class="smiles-cell">{{ row.canonical_smiles if row.canonical_smiles is defined else '' }}</td>
-                                <td>
-                                    <span class="mini-badge {% if row.status == 'Valid' %}mini-badge-good{% else %}mini-badge-bad{% endif %}">
-                                        {{ row.status }}
-                                    </span>
-                                </td>
-                                <td>{{ row.mw if row.mw is defined else '' }}</td>
-                                <td>{{ row.logp if row.logp is defined else '' }}</td>
-                                <td>{{ row.tpsa if row.tpsa is defined else '' }}</td>
-                                <td>{{ row.hbd if row.hbd is defined else '' }}</td>
-                                <td>{{ row.hba if row.hba is defined else '' }}</td>
-                                <td>{{ row.rot_bonds if row.rot_bonds is defined else '' }}</td>
-
-                                <td>
-                                    {% if row.bbb_assessment is defined %}
-                                    <span class="mini-badge {% if row.bbb_assessment == 'Favorable' %}mini-badge-good{% else %}mini-badge-bad{% endif %}">
-                                        {{ row.bbb_assessment }}
-                                    </span>
-                                    {% endif %}
-                                </td>
-
-                                <td>
-                                    {% if row.absorption_assessment is defined %}
-                                    <span class="mini-badge {% if row.absorption_assessment == 'Favorable' %}mini-badge-good{% else %}mini-badge-warn{% endif %}">
-                                        {{ row.absorption_assessment }}
-                                    </span>
-                                    {% endif %}
-                                </td>
-
-                                <td>
-                                    {% if row.permeability_assessment is defined %}
-                                    <span class="mini-badge {% if row.permeability_assessment == 'Favorable' %}mini-badge-good{% else %}mini-badge-warn{% endif %}">
-                                        {{ row.permeability_assessment }}
-                                    </span>
-                                    {% endif %}
-                                </td>
-
-                                <td>
-                                    {% if row.pains_alerts_count is defined %}
-                                    <span class="mini-badge {% if row.pains_alerts_count == 0 %}mini-badge-good{% else %}mini-badge-bad{% endif %}">
-                                        {{ row.pains_alerts_count }}
-                                    </span>
-                                    {% endif %}
-                                </td>
-
-                                <td>
-                                    {% if row.brenk_alerts_count is defined %}
-                                    <span class="mini-badge {% if row.brenk_alerts_count == 0 %}mini-badge-good{% else %}mini-badge-warn{% endif %}">
-                                        {{ row.brenk_alerts_count }}
-                                    </span>
-                                    {% endif %}
-                                </td>
-
-                                <td>{{ row.synthetic_accessibility if row.synthetic_accessibility is defined else '' }}</td>
-                                <td>{{ row.ranking_score if row.ranking_score is defined else '' }}</td>
-
-                                <td>
-                                    {% if row.rank_class is defined %}
-                                        {% if row.rank_class == 'Excellent' %}
-                                            <span class="mini-badge mini-badge-good">{{ row.rank_class }}</span>
-                                        {% elif row.rank_class == 'Good' %}
-                                            <span class="mini-badge mini-badge-good">{{ row.rank_class }}</span>
-                                        {% elif row.rank_class == 'Moderate' %}
-                                            <span class="mini-badge mini-badge-warn">{{ row.rank_class }}</span>
-                                        {% else %}
-                                            <span class="mini-badge mini-badge-bad">{{ row.rank_class }}</span>
-                                        {% endif %}
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            {% for row in results %}
-            <section class="panel-card molecule-report-card">
-                <div class="molecule-report-header">
-                    <div class="report-title-wrap">
-                        <h3>Molecule {{ row.id }}</h3>
-                        <p class="report-title-subtext">Detailed descriptor-based profiling report</p>
-                    </div>
-
-                    <span class="molecule-status {% if row.status == 'Valid' %}status-valid{% else %}status-invalid{% endif %}">
-                        {{ row.status }}
-                    </span>
-                </div>
-
-                <div class="molecule-report-top">
-                    <div class="molecule-structure-card">
-                        <div class="report-subtitle">2D Structure</div>
-                        {% if row.image %}
-                            <img src="{{ row.image }}" alt="Molecule {{ row.id }} structure" class="molecule-image">
-                        {% else %}
-                            <div class="invalid-structure-box">Invalid structure could not be rendered.</div>
-                        {% endif %}
-
-                        <div class="smiles-report-line">
-                            <strong>Input SMILES:</strong> {{ row.smiles }}
-                        </div>
-
-                        {% if row.canonical_smiles is defined %}
-                        <div class="smiles-report-line">
-                            <strong>Canonical SMILES:</strong> {{ row.canonical_smiles }}
-                        </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="molecule-radar-card">
-                        <div class="report-subtitle">Bioavailability Radar-Style View</div>
-                        {% if row.radar_axes %}
-                        <svg class="radar-svg" viewBox="0 0 340 300" xmlns="http://www.w3.org/2000/svg" aria-label="Radar plot">
-                            <g transform="translate(170,150)">
-                                {% for level in [1,2,3,4,5,6] %}
-                                {% set r = level * 18 %}
-                                <polygon
-                                    points="
-                                    0,{{ -r }}
-                                    {{ 0.866*r }},{{ -0.5*r }}
-                                    {{ 0.866*r }},{{ 0.5*r }}
-                                    0,{{ r }}
-                                    {{ -0.866*r }},{{ 0.5*r }}
-                                    {{ -0.866*r }},{{ -0.5*r }}
-                                    "
-                                    class="radar-grid"/>
-                                {% endfor %}
-
-                                <line x1="0" y1="0" x2="0" y2="-108" class="radar-axis"/>
-                                <line x1="0" y1="0" x2="93.53" y2="-54" class="radar-axis"/>
-                                <line x1="0" y1="0" x2="93.53" y2="54" class="radar-axis"/>
-                                <line x1="0" y1="0" x2="0" y2="108" class="radar-axis"/>
-                                <line x1="0" y1="0" x2="-93.53" y2="54" class="radar-axis"/>
-                                <line x1="0" y1="0" x2="-93.53" y2="-54" class="radar-axis"/>
-
-                                {% set v0 = row.radar_axes[0].value * 18 %}
-                                {% set v1 = row.radar_axes[1].value * 18 %}
-                                {% set v2 = row.radar_axes[2].value * 18 %}
-                                {% set v3 = row.radar_axes[3].value * 18 %}
-                                {% set v4 = row.radar_axes[4].value * 18 %}
-                                {% set v5 = row.radar_axes[5].value * 18 %}
-
-                                <polygon
-                                    points="
-                                    0,{{ -v0 }}
-                                    {{ 0.866*v1 }},{{ -0.5*v1 }}
-                                    {{ 0.866*v2 }},{{ 0.5*v2 }}
-                                    0,{{ v3 }}
-                                    {{ -0.866*v4 }},{{ 0.5*v4 }}
-                                    {{ -0.866*v5 }},{{ -0.5*v5 }}
-                                    "
-                                    class="radar-shape"/>
-
-                                <text x="0" y="-122" text-anchor="middle" class="radar-label">LIPO</text>
-                                <text x="108" y="-58" text-anchor="start" class="radar-label">SIZE</text>
-                                <text x="108" y="62" text-anchor="start" class="radar-label">POLAR</text>
-                                <text x="0" y="126" text-anchor="middle" class="radar-label">INSOLU</text>
-                                <text x="-112" y="62" text-anchor="end" class="radar-label">INSATU</text>
-                                <text x="-112" y="-58" text-anchor="end" class="radar-label">FLEX</text>
-                            </g>
-                        </svg>
-                        {% else %}
-                        <div class="invalid-structure-box">Radar unavailable for invalid structure.</div>
-                        {% endif %}
-                    </div>
                 </div>
 
                 {% if row.status == 'Valid' %}
-                <div class="stats-strip" style="margin-top: 4px; margin-bottom: 18px;">
-                    <div class="stat-card">
-                        <span class="stat-value">{{ row.ranking_score if row.ranking_score is defined else 'N/A' }}</span>
-                        <span class="stat-label">Ranking Score</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-value">{{ row.rank_class if row.rank_class is defined else 'N/A' }}</span>
-                        <span class="stat-label">Ranking Class</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-value">{{ row.pains_alerts_count if row.pains_alerts_count is defined else 'N/A' }}</span>
-                        <span class="stat-label">PAINS Alerts</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-value">{{ row.brenk_alerts_count if row.brenk_alerts_count is defined else 'N/A' }}</span>
-                        <span class="stat-label">Brenk Alerts</span>
-                    </div>
+                <div class="status-badge status-valid">
+                    <i class="fas fa-check-circle"></i> {{ row.status }}
+                </div>
+                {% else %}
+                <div class="status-badge status-invalid">
+                    <i class="fas fa-triangle-exclamation"></i> {{ row.status }}
                 </div>
                 {% endif %}
+            </div>
 
-                {% if row.sections %}
-                <div class="report-sections-grid">
-                    {% for section_name, items in row.sections.items() %}
-                    <div class="report-section-card">
-                        <div class="report-section-title">{{ section_name }}</div>
-                        <div class="report-kv-list">
-                            {% for key, value in items %}
-                            <div class="report-kv-row">
-                                <div class="report-kv-key">{{ key }}</div>
-                                <div class="report-kv-value">{{ value }}</div>
-                            </div>
-                            {% endfor %}
+            {% if row.status == 'Valid' %}
+
+            <div class="info-panel">
+                <div class="panel-title">
+                    <i class="fas fa-tags"></i> Project-Fit Labels
+                </div>
+                <div class="fit-label-grid">
+                    {% for label in row.project_fit_labels %}
+                    <div class="fit-label">{{ label }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <div class="panel-title">
+                    <i class="fas fa-bolt"></i> Rapid Decision Summary
+                </div>
+                <div class="property-grid">
+                    <div class="property-item">
+                        <div class="property-label">Ranking Score</div>
+                        <div class="property-value">{{ row.ranking_score }} <span class="property-unit">/6</span></div>
+                    </div>
+
+                    <div class="property-item">
+                        <div class="property-label">Ranking Class</div>
+                        <div class="property-value">{{ row.rank_class }}</div>
+                    </div>
+
+                    <div class="property-item">
+                        <div class="property-label">Project Goal</div>
+                        <div class="property-value">{{ row.project_goal_label }}</div>
+                    </div>
+
+                    <div class="property-item">
+                        <div class="property-label">Bioavailability Score</div>
+                        <div class="property-value">{{ row.bioavailability_score }}</div>
+                    </div>
+
+                    <div class="property-item">
+                        <div class="property-label">Murcko Scaffold</div>
+                        <div class="property-value" style="font-size:0.84rem; line-height:1.45;">
+                            {{ row.scaffold_smiles }}
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <div class="panel-title">
+                    <i class="fas fa-traffic-light"></i> Liability Map
+                </div>
+                <div class="liability-grid">
+                    {% for item in row.liability_map %}
+                    <div class="liability-item {{ item.status }}">
+                        <div class="liability-status-dot"></div>
+                        <div class="liability-label">{{ item.label }}</div>
+                        <div class="liability-value">{{ item.value }}</div>
                     </div>
                     {% endfor %}
                 </div>
-                {% endif %}
-            </section>
-            {% endfor %}
+            </div>
 
-            <section class="panel-card section-spacer">
-                <div class="panel-header">
-                    <span class="section-kicker">Interpretation</span>
-                    <h3>How these results should be used</h3>
-                    <p>
-                        MolScore-PK reports calculated molecular descriptors, medicinal chemistry rules,
-                        alert-based filtering, and descriptor-driven prioritization to support comparative
-                        profiling and early-stage compound triage. These outputs are not experimental PK values,
-                        not target-specific activity predictions, and should be interpreted as screening support
-                        rather than definitive decision endpoints.
-                    </p>
+            <div class="info-panel">
+                <div class="panel-title">
+                    <i class="fas fa-wand-magic-sparkles"></i> Optimization Suggestions
                 </div>
-            </section>
+                <div class="suggestion-list">
+                    {% for suggestion in row.optimization_suggestions %}
+                    <div class="suggestion-item">
+                        <strong><i class="fas fa-arrow-right"></i></strong> {{ suggestion }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
 
-            <section class="footer-block">
-                <p>
-                    Guangdong Provincial Key Laboratory for Research and Development of Natural Drugs,
-                    School of Pharmacy, Guangdong Medical University, Dongguan 523808, China
-                </p>
-                <p>© 2026 MolScore-PK. All rights reserved.</p>
-                <p>Last update: March 25, 2026</p>
-            </section>
-        </main>
+            <div class="info-panel">
+                <div class="panel-title">
+                    <i class="fas fa-cube"></i> Molecular Structure & Identity
+                </div>
+
+                <div class="structure-image">
+                    {% if row.image %}
+                    <img src="{{ row.image }}" alt="Molecule {{ row.id }}">
+                    {% else %}
+                    <div style="padding: 40px; text-align: center; color: var(--gray);">
+                        <i class="fas fa-draw-polygon" style="font-size: 3rem;"></i>
+                        <p style="margin-top: 12px;">Structure rendering unavailable</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="smiles-box">
+                    <strong>Input SMILES:</strong><br>
+                    {{ row.smiles }}
+                </div>
+
+                <div class="smiles-box" style="margin-top: 8px;">
+                    <strong>Canonical SMILES:</strong><br>
+                    {{ row.canonical_smiles }}
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <div class="panel-title">
+                    <i class="fas fa-flask"></i> Physicochemical Properties
+                </div>
+
+                <div class="property-grid">
+                    <div class="property-item">
+                        <div class="property-label">Molecular Weight</div>
+                        <div class="property-value">{{ row.mw }} <span class="property-unit">g/mol</span></div>
+                    </div>
+                    <div class="property-item">
+                        <div class="property-label">LogP</div>
+                        <div class="property-value">{{ row.logp }}</div>
+                    </div>
+                    <div class="property-item">
+                        <div class="property-label">TPSA</div>
+                        <div class="property-value">{{ row.tpsa }} <span class="property-unit">Å²</span></div>
+                    </div>
+                    <div class="property-item">
+                        <div class="property-label">Fraction Csp3</div>
+                        <div class="property-value">{{ row.frac_csp3 }}</div>
+                    </div>
+                    <div class="property-item">
+                        <div class="property-label">HBA</div>
+                        <div class="property-value">{{ row.hba }}</div>
+                    </div>
+                    <div class="property-item">
+                        <div class="property-label">HBD</div>
+                        <div class="property-value">{{ row.hbd }}</div>
+                    </div>
+                    <div class="property-item">
+                        <div class="property-label">Rotatable Bonds</div>
+                        <div class="property-value">{{ row.rot_bonds }}</div>
+                    </div>
+                    <div class="property-item">
+                        <div class="property-label">Molar Refractivity</div>
+                        <div class="property-value">{{ row.mol_refractivity }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <div class="panel-title">
+                    <i class="fas fa-chart-radar"></i> Developability Radar
+                    <span style="margin-left:auto;">
+                        <button class="download-radar-btn" onclick="downloadRadar({{ loop.index }})">
+                            <i class="fas fa-camera"></i> Save as PNG
+                        </button>
+                    </span>
+                </div>
+
+                <div class="radar-wrapper">
+                    <div class="radar-canvas-wrap">
+                        <canvas id="radar-{{ loop.index }}"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                (function () {
+                    const canvas = document.getElementById('radar-{{ loop.index }}');
+                    if (!canvas) return;
+
+                    function numOr(value, fallback) {
+                        const n = Number(value);
+                        return Number.isFinite(n) ? n : fallback;
+                    }
+
+                    function clamp(val, min, max) {
+                        return Math.min(max, Math.max(min, val));
+                    }
+
+                    function normCenter(value, center, tolerance) {
+                        return clamp(1 - Math.abs(value - center) / tolerance, 0, 1);
+                    }
+
+                    function normMax(value, maxIdeal, hardMax) {
+                        if (value <= maxIdeal) return 1;
+                        return clamp(1 - ((value - maxIdeal) / (hardMax - maxIdeal)), 0, 1);
+                    }
+
+                    function normMin(value, minIdeal, hardMin) {
+                        if (value >= minIdeal) return 1;
+                        return clamp((value - hardMin) / (minIdeal - hardMin), 0, 1);
+                    }
+
+                    const mw = numOr({{ row.mw|tojson }}, 300);
+                    const logp = numOr({{ row.logp|tojson }}, 2.5);
+                    const hbd = numOr({{ row.hbd|tojson }}, 2);
+                    const hba = numOr({{ row.hba|tojson }}, 4);
+                    const tpsa = numOr({{ row.tpsa|tojson }}, 80);
+                    const rotBonds = numOr({{ row.rot_bonds|tojson }}, 5);
+                    const fracCsp3 = numOr({{ row.frac_csp3|tojson }}, 0.35);
+                    const saScore = numOr({{ row.synthetic_accessibility|tojson }}, 3.5);
+
+                    const normMW = normCenter(mw, 350, 250);
+                    const normLogP = normCenter(logp, 2.5, 3.5);
+                    const normHBD = normMax(hbd, 3, 6);
+                    const normHBA = normMax(hba, 8, 12);
+                    const normTPSA = normMax(tpsa, 120, 180);
+                    const normRotBonds = normMax(rotBonds, 8, 15);
+                    const normCsp3 = normMin(fracCsp3, 0.25, 0.00);
+                    const normSA = normMax(saScore, 4.0, 8.5);
+
+                    new Chart(canvas, {
+                        type: 'radar',
+                        data: {
+                            labels: ['MW', 'LogP', 'HBD', 'HBA', 'TPSA', 'RotB', 'Fsp3', 'SA'],
+                            datasets: [
+                                {
+                                    label: 'Preferred profile',
+                                    data: [0.90, 0.90, 0.88, 0.88, 0.86, 0.85, 0.82, 0.82],
+                                    backgroundColor: 'rgba(16,185,129,0.12)',
+                                    borderColor: 'rgba(16,185,129,0.65)',
+                                    borderWidth: 2,
+                                    pointRadius: 0,
+                                    fill: true
+                                },
+                                {
+                                    label: 'Molecule {{ row.id }}',
+                                    data: [normMW, normLogP, normHBD, normHBA, normTPSA, normRotBonds, normCsp3, normSA],
+                                    backgroundColor: 'rgba(99,102,241,0.22)',
+                                    borderColor: 'rgba(99,102,241,1)',
+                                    borderWidth: 3,
+                                    pointBackgroundColor: 'rgba(236,72,153,1)',
+                                    pointBorderColor: '#ffffff',
+                                    pointBorderWidth: 2,
+                                    pointRadius: 5,
+                                    fill: true
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            animation: false,
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        color: '#000000',
+                                        font: {
+                                            size: 13,
+                                            weight: '700',
+                                            family: 'Times New Roman, serif'
+                                        }
+                                    },
+                                    position: 'top'
+                                }
+                            },
+                            scales: {
+                                r: {
+                                    beginAtZero: true,
+                                    min: 0,
+                                    max: 1,
+                                    ticks: {
+                                        stepSize: 0.2,
+                                        color: '#000000',
+                                        backdropColor: 'transparent',
+                                        callback: function(value) { return (value * 100) + '%'; },
+                                        font: {
+                                            size: 11,
+                                            family: 'Times New Roman, serif',
+                                            weight: '700'
+                                        }
+                                    },
+                                    grid: {
+                                        color: 'rgba(15,23,42,0.16)',
+                                        circular: true
+                                    },
+                                    angleLines: {
+                                        color: 'rgba(15,23,42,0.16)'
+                                    },
+                                    pointLabels: {
+                                        color: '#000000',
+                                        font: {
+                                            size: 14,
+                                            weight: '700',
+                                            family: 'Times New Roman, serif'
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                })();
+            </script>
+
+            <div class="info-panel">
+                <div class="panel-title">
+                    <i class="fas fa-sliders"></i> Explainable Score Breakdown
+                </div>
+                <div class="score-grid">
+                    {% for item in row.score_breakdown %}
+                    <div class="score-item">
+                        <div class="mini-label">{{ item.label }}</div>
+                        <div class="score-value">{{ item.value }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="two-column-grid">
+                <div class="section-card">
+                    <div class="section-title">
+                        <i class="fas fa-oil-can"></i> Lipophilicity and Solubility
+                    </div>
+
+                    <div class="descriptor-row">
+                        <div class="descriptor-main">
+                            <span class="descriptor-name">Consensus Log P<sub>o/w</sub></span>
+                            <span class="descriptor-value">{{ row.logp }}</span>
+                        </div>
+                    </div>
+
+                    <div class="descriptor-row">
+                        <div class="descriptor-main">
+                            <span class="descriptor-name">Log P<sub>o/w</sub> (iLOGP)</span>
+                            <span class="descriptor-value">{{ row.ilogp }}</span>
+                        </div>
+                        <div class="descriptor-subtext">Reference: in-house physics-based method reported by Daina et al., J. Chem. Inf. Model. 2014.</div>
+                    </div>
+
+                    <div class="descriptor-row">
+                        <div class="descriptor-main">
+                            <span class="descriptor-name">Log P<sub>o/w</sub> (XLOGP3)</span>
+                            <span class="descriptor-value">{{ row.xlogp }}</span>
+                        </div>
+                        <div class="descriptor-subtext">Reference: XLOGP3 atomistic and knowledge-based method.</div>
+                    </div>
+
+                    <div class="descriptor-row">
+                        <div class="descriptor-main">
+                            <span class="descriptor-name">Log S (ESOL)</span>
+                            <span class="descriptor-value">{{ row.esol_logs }} <span class="property-unit">log mol/L</span></span>
+                        </div>
+                    </div>
+
+                    <div class="descriptor-row">
+                        <div class="descriptor-main">
+                            <span class="descriptor-name">ESOL Solubility</span>
+                            <span class="descriptor-value">{{ row.esol_solubility }} <span class="property-unit">mg/mL</span></span>
+                        </div>
+                    </div>
+
+                    <div class="descriptor-row">
+                        <div class="descriptor-main">
+                            <span class="descriptor-name">Solubility Class</span>
+                            <span class="descriptor-value">{{ row.solubility_class }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <div class="section-title">
+                        <i class="fas fa-lungs"></i> ADME-Oriented Flags
+                    </div>
+
+                    <div class="descriptor-row">
+                        <div class="descriptor-main">
+                            <span class="descriptor-name">GI Absorption</span>
+                            <span class="descriptor-value">{{ row.gi_absorption }}</span>
+                        </div>
+                    </div>
+
+                    <div class="descriptor-row">
+                        <div class="descriptor-main">
+                            <span class="descriptor-name">BBB Permeant</span>
+                            <span class="descriptor-value">{{ row.bbb_permeant }}</span>
+                        </div>
+                    </div>
+
+                    <div class="descriptor-row">
+                        <div class="descriptor-main">
+                            <span class="descriptor-name">P-gp Substrate</span>
+                            <span class="descriptor-value">{{ row.pgp_substrate }}</span>
+                        </div>
+                    </div>
+
+                    <div class="descriptor-row">
+                        <div class="descriptor-main">
+                            <span class="descriptor-name">Log Kp (Skin Permeation)</span>
+                            <span class="descriptor-value">{{ row.log_kp }} <span class="property-unit">log cm/s</span></span>
+                        </div>
+                    </div>
+
+                    <div class="descriptor-row">
+                        <div class="descriptor-main">
+                            <span class="descriptor-name">CYP1A2 Inhibitor</span>
+                            <span class="descriptor-value">{{ row.cyp1a2_inhibitor }}</span>
+                        </div>
+                    </div>
+
+                    <div class="descriptor-row">
+                        <div class="descriptor-main">
+                            <span class="descriptor-name">CYP3A4 Inhibitor</span>
+                            <span class="descriptor-value">{{ row.cyp3a4_inhibitor }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="two-column-grid">
+                <div class="section-card">
+                    <div class="section-title">
+                        <i class="fas fa-capsules"></i> Drug-Likeness Rules
+                    </div>
+
+                    <div class="descriptor-row">
+                        <div class="descriptor-main">
+                            <span class="descriptor-name">Lipinski Violations</span>
+                            <span class="descriptor-value">{{ row.lipinski_violations }}</span>
+                        </div>
+                    </div>
+
+                    <div class="descriptor-row">
+                        <div class="descriptor-main">
+                            <span class="descriptor-name">Veber</span>
+                            <span class="descriptor-value">{{ row.veber }}</span>
+                        </div>
+                    </div>
+
+                    <div class="descriptor-row">
+                        <div class="descriptor-main">
+                            <span class="descriptor-name">Ghose</span>
+                            <span class="descriptor-value">{{ row.ghose }}</span>
+                        </div>
+                    </div>
+
+                    <div class="descriptor-row">
+                        <div class="descriptor-main">
+                            <span class="descriptor-name">Rule of 3</span>
+                            <span class="descriptor-value">{{ row.rule_of_3 }}</span>
+                        </div>
+                    </div>
+
+                    <div class="descriptor-row">
+                        <div class="descriptor-main">
+                            <span class="descriptor-name">Lead-Like</span>
+                            <span class="descriptor-value">{{ row.lead_like }}</span>
+                        </div>
+                    </div>
+
+                    <div class="descriptor-row">
+                        <div class="descriptor-main">
+                            <span class="descriptor-name">Bioavailability Score</span>
+                            <span class="descriptor-value">{{ row.bioavailability_score }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <div class="section-title">
+                        <i class="fas fa-shield-heart"></i> Medicinal Chemistry Review
+                    </div>
+
+                    <div class="descriptor-row">
+                        <div class="descriptor-main">
+                            <span class="descriptor-name">PAINS</span>
+                            <span class="descriptor-value">{{ row.pains_alerts_text }}</span>
+                        </div>
+                    </div>
+
+                    <div class="descriptor-row">
+                        <div class="descriptor-main">
+                            <span class="descriptor-name">Brenk</span>
+                            <span class="descriptor-value">{{ row.brenk_alerts_text }}</span>
+                        </div>
+                    </div>
+
+                    <div class="descriptor-row">
+                        <div class="descriptor-main">
+                            <span class="descriptor-name">Synthetic Accessibility</span>
+                            <span class="descriptor-value">{{ "%.2f"|format(row.synthetic_accessibility) }} <span class="property-unit">/10</span></span>
+                        </div>
+                    </div>
+
+                    <div class="descriptor-row">
+                        <div class="descriptor-main">
+                            <span class="descriptor-name">Murcko Scaffold</span>
+                            <span class="descriptor-value" style="font-size:0.82rem; line-height:1.45;">{{ row.scaffold_smiles }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% else %}
+            <div class="invalid-box">
+                <i class="fas fa-exclamation-triangle" style="font-size: 4rem; color: #ef4444;"></i>
+                <p>Invalid SMILES string or structure could not be parsed.</p>
+                <div class="smiles-box" style="display: inline-block; margin-top: 20px; max-width: 700px;">
+                    <strong>Submitted Input:</strong><br>
+                    {{ row.smiles }}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="action-buttons">
+                <a href="{{ url_for('prediction') }}" class="btn btn-outline">
+                    <i class="fas fa-arrow-left"></i> New Analysis
+                </a>
+                <a href="{{ url_for('download_csv') }}" class="btn btn-primary">
+                    <i class="fas fa-download"></i> Export Results (CSV)
+                </a>
+            </div>
+        </div>
+        {% endfor %}
     </div>
+</main>
+
+<script>
+    function downloadRadar(chartId) {
+        const canvas = document.getElementById(`radar-${chartId}`);
+        if (!canvas) return;
+        const link = document.createElement('a');
+        link.download = `radar_plot_molecule_${chartId}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    }
+</script>
+
 </body>
 </html>

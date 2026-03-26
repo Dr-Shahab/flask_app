@@ -1,211 +1,779 @@
-<!-- DOCUMENTATION -->
-<section class="panel-card">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Documentation | MolScore-PK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <div class="panel-header">
-        <h3>Overview</h3>
-        <p>
-            MolScore-PK is a web-based molecular profiling platform designed for early-stage
-            compound evaluation using descriptor-based analysis and rule-based interpretation.
-            The system computes physicochemical properties, evaluates drug-likeness criteria,
-            identifies medicinal chemistry alerts, and generates a composite prioritization score
-            to support comparative analysis of small molecules.
-        </p>
+        :root {
+            --primary: #6366f1;
+            --secondary: #ec489a;
+            --accent: #14b8a6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #3b82f6;
+            --dark: #0f172a;
+            --dark-light: #1e293b;
+            --gray: #64748b;
+            --gray-light: #94a3b8;
+            --bg-dark: #020617;
+            --bg-card: rgba(15, 23, 42, 0.82);
+        }
 
-        <p>
-            The platform accepts molecular structures in SMILES format and provides structured
-            outputs including descriptor summaries, classification results, and visualization-ready
-            molecular reports. The results are intended for screening support rather than experimental
-            pharmacokinetic prediction or target-specific activity modeling.
-        </p>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.15), transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.12), transparent 50%),
+                radial-gradient(circle at 35% 15%, rgba(20, 184, 166, 0.08), transparent 45%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(99, 102, 241, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.04) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            width: min(100% - 32px, 1360px);
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            margin-top: 20px;
+            border-radius: 80px;
+            background: rgba(15, 23, 42, 0.68);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(99, 102, 241, 0.32);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .topbar-inner {
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            flex-wrap: wrap;
+            padding: 8px 24px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-mark {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            font-weight: 800;
+            font-size: 1.3rem;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.45);
+        }
+
+        .brand-text h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #818cf8);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .brand-text p {
+            font-size: 0.8rem;
+            color: var(--gray-light);
+        }
+
+        .nav {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav a {
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            color: var(--gray-light);
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+
+        .nav a:hover {
+            background: rgba(99, 102, 241, 0.22);
+            color: white;
+        }
+
+        .nav .active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .hero-banner {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.28), rgba(236, 72, 153, 0.18));
+            border-radius: 42px;
+            padding: 44px;
+            margin: 36px 0 28px;
+            border: 1px solid rgba(99, 102, 241, 0.30);
+            backdrop-filter: blur(10px);
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(99, 102, 241, 0.20);
+            padding: 8px 18px;
+            border-radius: 60px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 18px;
+        }
+
+        .hero-banner h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            margin-bottom: 14px;
+            background: linear-gradient(135deg, #fff, #818cf8, #ec489a);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .hero-banner p {
+            font-size: 1.05rem;
+            color: var(--gray-light);
+            line-height: 1.68;
+            max-width: 980px;
+        }
+
+        .quick-grid,
+        .feature-grid,
+        .mode-grid,
+        .goal-grid,
+        .warning-grid {
+            display: grid;
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .quick-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .feature-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .mode-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .goal-grid {
+            grid-template-columns: repeat(5, 1fr);
+        }
+
+        .warning-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .stat-card,
+        .feature-card,
+        .mode-card,
+        .goal-card,
+        .warning-card {
+            background: rgba(15, 23, 42, 0.58);
+            border: 1px solid rgba(99, 102, 241, 0.18);
+            border-radius: 24px;
+            padding: 20px;
+        }
+
+        .stat-card {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.1rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #818cf8, #ec489a);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .stat-label {
+            color: var(--gray-light);
+            font-size: 0.86rem;
+            margin-top: 8px;
+        }
+
+        .feature-card i,
+        .mode-card i,
+        .goal-card i,
+        .warning-card i {
+            font-size: 1.35rem;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+
+        .feature-card h4,
+        .mode-card h4,
+        .goal-card h4,
+        .warning-card h4 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p,
+        .mode-card p,
+        .goal-card p,
+        .warning-card p {
+            color: var(--gray-light);
+            font-size: 0.86rem;
+            line-height: 1.58;
+        }
+
+        .doc-section {
+            background: var(--bg-card);
+            border: 1px solid rgba(99, 102, 241, 0.18);
+            border-radius: 30px;
+            padding: 30px;
+            margin-bottom: 28px;
+            backdrop-filter: blur(14px);
+        }
+
+        .doc-title {
+            font-size: 1.22rem;
+            font-weight: 700;
+            color: #a5b4fc;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(99, 102, 241, 0.18);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .doc-section p {
+            color: #d6def0;
+            line-height: 1.72;
+            margin-bottom: 14px;
+        }
+
+        .doc-section p:last-child {
+            margin-bottom: 0;
+        }
+
+        .doc-section ul,
+        .doc-section ol {
+            margin-left: 22px;
+            color: #d6def0;
+            line-height: 1.72;
+        }
+
+        .doc-section li {
+            margin-bottom: 8px;
+        }
+
+        .doc-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+        }
+
+        .sub-card {
+            background: rgba(0, 0, 0, 0.22);
+            border: 1px solid rgba(99, 102, 241, 0.12);
+            border-radius: 22px;
+            padding: 20px;
+        }
+
+        .sub-card h5 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: #c7d2fe;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: 18px;
+            border: 1px solid rgba(99, 102, 241, 0.14);
+            background: rgba(0, 0, 0, 0.18);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 720px;
+        }
+
+        th, td {
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(99, 102, 241, 0.10);
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            color: #c7d2fe;
+            font-size: 0.86rem;
+            font-weight: 700;
+            background: rgba(99, 102, 241, 0.06);
+        }
+
+        td {
+            color: #d6def0;
+            font-size: 0.9rem;
+            line-height: 1.55;
+        }
+
+        .note-box {
+            margin-top: 16px;
+            background: rgba(59, 130, 246, 0.10);
+            border-left: 3px solid var(--info);
+            border-radius: 12px;
+            padding: 14px 16px;
+            color: #dbeafe;
+            line-height: 1.65;
+        }
+
+        .warn-box {
+            margin-top: 16px;
+            background: rgba(245, 158, 11, 0.10);
+            border-left: 3px solid var(--warning);
+            border-radius: 12px;
+            padding: 14px 16px;
+            color: #fde68a;
+            line-height: 1.65;
+        }
+
+        .good-box {
+            margin-top: 16px;
+            background: rgba(16, 185, 129, 0.10);
+            border-left: 3px solid var(--success);
+            border-radius: 12px;
+            padding: 14px 16px;
+            color: #bbf7d0;
+            line-height: 1.65;
+        }
+
+        .footer-space {
+            height: 24px;
+        }
+
+        @media (max-width: 1200px) {
+            .quick-grid,
+            .mode-grid,
+            .goal-grid,
+            .feature-grid,
+            .warning-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .doc-grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .topbar-inner {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .nav {
+                justify-content: center;
+            }
+
+            .quick-grid,
+            .mode-grid,
+            .goal-grid,
+            .feature-grid,
+            .warning-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-banner {
+                padding: 30px 24px;
+                border-radius: 30px;
+            }
+
+            .doc-section {
+                padding: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="grid-overlay"></div>
+
+<header class="topbar">
+    <div class="container topbar-inner">
+        <div class="brand">
+            <div class="brand-mark">⚡</div>
+            <div class="brand-text">
+                <h1>MolScore-PK</h1>
+                <p>Medicinal Chemistry-Aware Molecular prioritization</p>
+            </div>
+        </div>
+        <nav class="nav">
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('prediction') }}">Prediction</a>
+            <a href="{{ url_for('documentation') }}" class="active">Documentation</a>
+        </nav>
     </div>
+</header>
 
-</section>
+<main>
+    <div class="container">
+        <div class="hero-banner">
+            <div class="eyebrow">
+                <i class="fas fa-book"></i> User guide and method summary
+            </div>
+            <h2>Documentation</h2>
+            <p>
+                MolScore-PK is a Flask and RDKit-based molecular profiling server for early-stage compound prioritization.
+                It combines physicochemical descriptors, rule-based assessment, medicinal chemistry alerts,
+                scaffold-aware summarization, liability mapping, goal-based prioritization, and optimization-focused
+                output to help CADD users make faster decisions.
+            </p>
+        </div>
 
-<!-- USAGE -->
-<section class="panel-card">
+        <div class="quick-grid">
+            <div class="stat-card">
+                <div class="stat-value">4</div>
+                <div class="stat-label">Input Methods</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">30+</div>
+                <div class="stat-label">Output Fields</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">5</div>
+                <div class="stat-label">Project Goals</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">50</div>
+                <div class="stat-label">Max Molecules / Run</div>
+            </div>
+        </div>
 
-    <div class="panel-header">
-        <h3>Usage</h3>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <i class="fas fa-flask"></i>
+                <h4>Descriptor Profiling</h4>
+                <p>Computes standard molecular descriptors such as molecular weight, LogP, TPSA, HBD, HBA, rotatable bonds, aromatic rings, Fsp3, and molar refractivity.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-shield-heart"></i>
+                <h4>Medicinal Chemistry Review</h4>
+                <p>Highlights PAINS and Brenk alerts, reports synthetic accessibility, and summarizes medicinal chemistry liabilities in a structured way.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-chart-line"></i>
+                <h4>Decision Support</h4>
+                <p>Provides project-fit labels, goal-aware ranking, liability mapping, scaffold extraction, and optimization suggestions for early discovery workflows.</p>
+            </div>
+        </div>
+
+        <div class="doc-section">
+            <div class="doc-title">
+                <i class="fas fa-compass"></i> What MolScore-PK is designed to do
+            </div>
+            <p>
+                MolScore-PK is not intended to replace docking, QSAR, MD simulation, ADMET platforms, or biological evaluation.
+                Its role is to provide a fast, structured first-pass assessment of molecular quality before deeper computational
+                or experimental work. The platform is most useful when you need to quickly compare compounds, remove obvious liabilities,
+                identify balanced analogs, or prepare a prioritized shortlist.
+            </p>
+            <div class="good-box">
+                MolScore-PK is particularly useful for hit prioritization, analog comparison, early medicinal chemistry review, and small-batch compound profiling.
+            </div>
+        </div>
+
+        <div class="doc-section">
+            <div class="doc-title">
+                <i class="fas fa-upload"></i> Supported input modes
+            </div>
+            <div class="mode-grid">
+                <div class="mode-card">
+                    <i class="fas fa-code"></i>
+                    <h4>Single SMILES</h4>
+                    <p>Use this mode for rapid profiling of one structure at a time. Best for focused review or quick checking of a newly proposed analog.</p>
+                </div>
+                <div class="mode-card">
+                    <i class="fas fa-layer-group"></i>
+                    <h4>Batch SMILES</h4>
+                    <p>Paste multiple SMILES strings, one per line, to compare analogs side by side. This mode is useful for med-chem prioritization and small-series review.</p>
+                </div>
+                <div class="mode-card">
+                    <i class="fas fa-draw-polygon"></i>
+                    <h4>Draw Molecule</h4>
+                    <p>Use the embedded JSME editor to sketch a structure, then submit the generated SMILES directly for analysis.</p>
+                </div>
+                <div class="mode-card">
+                    <i class="fas fa-file-csv"></i>
+                    <h4>CSV Upload</h4>
+                    <p>Upload a CSV file containing a column named <strong>smiles</strong>. Up to 50 molecules are processed in one run.</p>
+                </div>
+            </div>
+            <div class="note-box">
+                CSV input is best when you want to compare many compounds using the same output workflow and export a structured result file afterward.
+            </div>
+        </div>
+
+        <div class="doc-section">
+            <div class="doc-title">
+                <i class="fas fa-bullseye"></i> Project goal modes
+            </div>
+            <p>
+                MolScore-PK supports goal-aware ranking. The same molecule may score differently depending on the design context, which makes the platform more useful than a single universal score.
+            </p>
+            <div class="goal-grid">
+                <div class="goal-card">
+                    <i class="fas fa-globe"></i>
+                    <h4>General</h4>
+                    <p>Balanced prioritization for broad early-stage screening without strong project-specific bias.</p>
+                </div>
+                <div class="goal-card">
+                    <i class="fas fa-capsules"></i>
+                    <h4>Oral</h4>
+                    <p>Favors balanced size, lipophilicity, polarity, absorption potential, and tractable developability.</p>
+                </div>
+                <div class="goal-card">
+                    <i class="fas fa-sitemap"></i>
+                    <h4>Lead</h4>
+                    <p>Useful for analog refinement. Emphasizes tractable size, medicinal chemistry friendliness, and property balance.</p>
+                </div>
+                <div class="goal-card">
+                    <i class="fas fa-cubes"></i>
+                    <h4>Fragment</h4>
+                    <p>Prioritizes smaller, simpler compounds that are closer to fragment-like property space.</p>
+                </div>
+                <div class="goal-card">
+                    <i class="fas fa-brain"></i>
+                    <h4>CNS</h4>
+                    <p>Favors lower polarity, limited hydrogen-bond burden, and BBB-friendly property space.</p>
+                </div>
+            </div>
+            <div class="warn-box">
+                Goal-based ranking in MolScore-PK is a prioritization aid, not a claim of true oral bioavailability, brain exposure, or clinical suitability.
+            </div>
+        </div>
+
+        <div class="doc-section">
+            <div class="doc-title">
+                <i class="fas fa-table"></i> Core output fields
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Section</th>
+                            <th>Field</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Identity</td>
+                            <td>Input SMILES, Canonical SMILES, Formula</td>
+                            <td>Structure entry, normalized representation, and basic molecular identity.</td>
+                        </tr>
+                        <tr>
+                            <td>Physicochemical</td>
+                            <td>MW, LogP, TPSA, HBD, HBA, Rotatable Bonds, Fsp3, Aromatic Rings</td>
+                            <td>Standard molecular descriptors frequently used in early-stage developability assessment.</td>
+                        </tr>
+                        <tr>
+                            <td>Lipophilicity</td>
+                            <td>Consensus Log P, iLOGP, XLOGP3</td>
+                            <td>Displayed to help users interpret lipophilicity and partition-related balance.</td>
+                        </tr>
+                        <tr>
+                            <td>Solubility</td>
+                            <td>ESOL LogS, ESOL Solubility, Solubility Class</td>
+                            <td>Provides a rough estimate of aqueous solubility and a readable solubility classification.</td>
+                        </tr>
+                        <tr>
+                            <td>Drug-likeness</td>
+                            <td>Lipinski, Veber, Ghose, Rule of 3, Lead-like</td>
+                            <td>Rule-based filters used as first-pass decision support rather than strict exclusion rules.</td>
+                        </tr>
+                        <tr>
+                            <td>Medicinal Chemistry</td>
+                            <td>PAINS, Brenk, SA score, Murcko Scaffold</td>
+                            <td>Surfaces structural alerts, synthetic tractability, and scaffold-level information for med-chem review.</td>
+                        </tr>
+                        <tr>
+                            <td>Decision Support</td>
+                            <td>Ranking Score, Ranking Class, Liability Map, Project-fit Labels, Optimization Suggestions</td>
+                            <td>Transforms raw descriptor output into a prioritization-oriented interpretation layer for CADD users.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="doc-section">
+            <div class="doc-title">
+                <i class="fas fa-chart-radar"></i> Key result panels and how to read them
+            </div>
+
+            <div class="doc-grid-2">
+                <div class="sub-card">
+                    <h5>Rapid Decision Summary</h5>
+                    <p>
+                        This block highlights the most important first-pass fields: ranking score, ranking class,
+                        project goal, bioavailability score, and Murcko scaffold. It is intended for quick shortlist review.
+                    </p>
+                </div>
+
+                <div class="sub-card">
+                    <h5>Liability Map</h5>
+                    <p>
+                        The liability map converts several important axes into green, amber, or red signals.
+                        This helps users detect whether solubility, lipophilicity, flexibility, alert burden,
+                        polarity, or synthetic accessibility needs attention.
+                    </p>
+                </div>
+
+                <div class="sub-card">
+                    <h5>Optimization Suggestions</h5>
+                    <p>
+                        This panel does not simply describe a molecule. It proposes practical next-step ideas,
+                        such as reducing lipophilicity, lowering TPSA, simplifying synthesis, or improving sp3 character.
+                    </p>
+                </div>
+
+                <div class="sub-card">
+                    <h5>Explainable Score Breakdown</h5>
+                    <p>
+                        The score breakdown panel shows how major property dimensions contribute to the final prioritization.
+                        This makes the ranking easier to understand and less like a black-box number.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="doc-section">
+            <div class="doc-title">
+                <i class="fas fa-calculator"></i> Method notes and interpretation
+            </div>
+            <p>
+                MolScore-PK relies primarily on RDKit-based descriptor calculation and rule-based interpretation.
+                Additional medicinal chemistry and prioritization layers are built on top of these outputs to improve readability and utility.
+            </p>
+            <ul>
+                <li><strong>Molecular descriptors:</strong> computed from RDKit and related cheminformatics routines.</li>
+                <li><strong>PAINS and Brenk alerts:</strong> derived from RDKit filter catalogs.</li>
+                <li><strong>Synthetic accessibility:</strong> estimated using the SA score method when available in the environment, with a fallback if not.</li>
+                <li><strong>Murcko scaffold:</strong> used to summarize scaffold-level identity for analog-focused workflows.</li>
+                <li><strong>Goal-aware ranking:</strong> uses project-specific weighting to prioritize compounds differently for general, oral, lead, fragment, and CNS modes.</li>
+            </ul>
+            <div class="note-box">
+                Some displayed labels such as GI absorption or BBB-oriented favorability are screening-style interpretations based on property windows, not experimentally validated ADME predictions.
+            </div>
+        </div>
+
+        <div class="doc-section">
+            <div class="doc-title">
+                <i class="fas fa-layer-group"></i> Batch analysis and export
+            </div>
+            <p>
+                When multiple valid molecules are submitted, MolScore-PK generates a batch summary that reports the number
+                of valid structures, scaffold diversity, average ranking score, average molecular weight, average LogP,
+                and the highest-ranked molecule in the set.
+            </p>
+            <p>
+                Results can be exported as CSV for downstream filtering, plotting, med-chem discussion, or supplementary analysis.
+            </p>
+        </div>
+
+        <div class="doc-section">
+            <div class="doc-title">
+                <i class="fas fa-triangle-exclamation"></i> Limitations and good practice
+            </div>
+            <div class="warning-grid">
+                <div class="warning-card">
+                    <i class="fas fa-vial"></i>
+                    <h4>Not a replacement for experiments</h4>
+                    <p>MolScore-PK does not replace biological testing, permeability experiments, solubility assays, or PK measurements.</p>
+                </div>
+                <div class="warning-card">
+                    <i class="fas fa-dna"></i>
+                    <h4>Not a target-specific predictor</h4>
+                    <p>The server evaluates molecular quality and liabilities, but it does not predict target affinity or selectivity by itself.</p>
+                </div>
+                <div class="warning-card">
+                    <i class="fas fa-brain"></i>
+                    <h4>Use interpretation carefully</h4>
+                    <p>This tools assist in compound prioritization while leaving final decisions to medicinal chemistry expertise and project-specific context.</p>
+                </div>
+            </div>
+            <div class="warn-box">
+                A compound with a poor score may still become valuable after optimization, and a compound with a good score may still fail later for potency, selectivity, toxicity, or PK reasons.
+            </div>
+        </div>
+
+        <div class="doc-section">
+            <div class="doc-title">
+                <i class="fas fa-rocket"></i> Recommended use workflow
+            </div>
+            <ol>
+                <li>Submit one molecule or a small batch of analogs.</li>
+                <li>Choose a project goal that matches the intended design context.</li>
+                <li>Review the rapid summary and liability map first.</li>
+                <li>Use medicinal chemistry alerts and scaffold information to identify obvious risks.</li>
+                <li>Read the optimization suggestions before deciding which compounds to keep, redesign, or deprioritize.</li>
+                <li>Export the results if you want to compare compounds outside the server.</li>
+            </ol>
+            <div class="good-box">
+                For practical CADD workflows, MolScore-PK works best as a screening and prioritization layer before docking, QSAR model building, synthesis planning, or experimental progression.
+            </div>
+        </div>
+
+        <div class="footer-space"></div>
     </div>
-
-    <div class="doc-section">
-
-        <h4>Step 1. Select a Method to Enter Molecules</h4>
-        <p>The platform supports multiple input methods to accommodate both single-molecule evaluation and small batch screening:</p>
-
-        <ul>
-            <li><strong>Single SMILES:</strong> Enter one SMILES string for rapid profiling.</li>
-            <li><strong>Batch SMILES:</strong> Enter multiple SMILES (one per line).</li>
-            <li><strong>Draw Molecule:</strong> Use the integrated JSME editor to sketch a structure.</li>
-            <li><strong>Upload File:</strong> Upload a CSV file containing a column named <code>smiles</code> (maximum 50 molecules).</li>
-        </ul>
-
-    </div>
-
-    <div class="doc-section">
-
-        <h4>Step 2. Submit for Profiling</h4>
-        <p>
-            After selecting the input method, submit the molecules using the analysis button.
-            The server processes each molecule individually and generates descriptor-based outputs.
-        </p>
-
-    </div>
-
-    <div class="doc-section">
-
-        <h4>Step 3. Output Structure</h4>
-        <p>The prediction results are presented in two main formats:</p>
-
-        <ul>
-            <li><strong>Summary Table:</strong> Provides a compact overview of all molecules, including descriptors, rule-based evaluations, and ranking scores.</li>
-            <li><strong>Molecule Report Cards:</strong> Detailed sections for each molecule including structure visualization, descriptor values, radar profile, and interpretation.</li>
-        </ul>
-
-    </div>
-
-</section>
-
-<!-- OUTPUT DESCRIPTION -->
-<section class="panel-card">
-
-    <div class="panel-header">
-        <h3>Output Description</h3>
-    </div>
-
-    <div class="doc-section">
-
-        <h4>Calculated Molecular Descriptors</h4>
-        <p>
-            The platform computes key physicochemical properties including molecular weight (MW),
-            LogP, topological polar surface area (TPSA), hydrogen bond donors (HBD),
-            hydrogen bond acceptors (HBA), rotatable bonds, aromatic ring count,
-            fraction Csp3, molar refractivity, and heteroatom count.
-        </p>
-
-    </div>
-
-    <div class="doc-section">
-
-        <h4>Drug-Likeness Evaluation</h4>
-        <p>
-            Multiple rule-based filters are applied to assess drug-likeness:
-        </p>
-        <ul>
-            <li>Lipinski Rule of Five</li>
-            <li>Veber Rule</li>
-            <li>Ghose Filter</li>
-            <li>Rule of 3</li>
-            <li>Lead-like criteria</li>
-        </ul>
-
-    </div>
-
-    <div class="doc-section">
-
-        <h4>Property-Based Assessment</h4>
-        <p>
-            Descriptor-driven heuristics are used to classify molecular properties:
-        </p>
-        <ul>
-            <li>Blood–brain barrier (BBB) tendency</li>
-            <li>Oral absorption potential</li>
-            <li>Permeability classification</li>
-            <li>Solubility risk</li>
-            <li>Flexibility and polarity class</li>
-        </ul>
-
-    </div>
-
-    <div class="doc-section">
-
-        <h4>Medicinal Chemistry Alerts</h4>
-        <p>
-            Structural alerts are identified using curated filters:
-        </p>
-        <ul>
-            <li><strong>PAINS:</strong> potential assay interference motifs</li>
-            <li><strong>Brenk:</strong> undesirable structural fragments</li>
-            <li><strong>SA Score:</strong> synthetic accessibility estimation</li>
-        </ul>
-
-    </div>
-
-</section>
-
-<!-- RANKING -->
-<section class="panel-card">
-
-    <div class="panel-header">
-        <h3>Descriptor-Based Ranking</h3>
-        <p>
-            Each molecule is assigned a normalized composite score derived from selected
-            physicochemical descriptors. This score reflects the balance between size,
-            lipophilicity, polarity, and flexibility.
-        </p>
-    </div>
-
-    <div class="doc-section">
-        <p>
-            The ranking score is further categorized into qualitative classes:
-        </p>
-        <ul>
-            <li><strong>Excellent</strong></li>
-            <li><strong>Good</strong></li>
-            <li><strong>Moderate</strong></li>
-            <li><strong>Poor</strong></li>
-        </ul>
-    </div>
-
-</section>
-
-<!-- INTERPRETATION -->
-<section class="panel-card">
-
-    <div class="panel-header">
-        <h3>Interpretation</h3>
-    </div>
-
-    <div class="doc-section">
-
-        <p>
-            The results generated by MolScore-PK are based on calculated descriptors and
-            rule-based evaluation. They are intended for:
-        </p>
-
-        <ul>
-            <li>Early-stage compound screening</li>
-            <li>Medicinal chemistry comparison</li>
-            <li>Property-based prioritization</li>
-            <li>Pre-filtering before QSAR or docking workflows</li>
-        </ul>
-
-        <p><strong>Note:</strong></p>
-        <ul>
-            <li>The outputs are not experimental pharmacokinetic data.</li>
-            <li>The ranking is not target-specific.</li>
-            <li>Invalid SMILES cannot be evaluated.</li>
-            <li>Final decisions require expert validation.</li>
-        </ul>
-
-    </div>
-
-</section>
-
-<!-- TECH -->
-<section class="panel-card">
-
-    <div class="panel-header">
-        <h3>Technical Summary</h3>
-    </div>
-
-    <div class="doc-section">
-        <ul>
-            <li><strong>Backend:</strong> Flask-based Python web application</li>
-            <li><strong>Cheminformatics:</strong> RDKit for molecular processing and descriptor calculation</li>
-            <li><strong>Editor:</strong> JSME molecular drawing interface</li>
-            <li><strong>Future Work:</strong> QSAR modeling, machine learning scoring, docking integration</li>
-        </ul>
-    </div>
-
-</section>
+</main>
+</body>
+</html>
